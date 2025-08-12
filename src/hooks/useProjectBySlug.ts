@@ -12,7 +12,7 @@ export function useProjectBySlug(slug: string) {
       // 1) Проект из основной таблицы (все поля, включая инфраструктуру и карту)
       const { data: projects, error: pErr } = await supabase
         .from("projects")
-        .select("*")
+        .select("id, slug, name, description, amenities, status, tags, city, district, address, price_min, price_max, area_min, area_max, image_urls, deadline, latitude, longitude, map_embed_url")
         .eq("slug", slug)
         .limit(1);
 

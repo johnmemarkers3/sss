@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { useComparison } from "@/components/ComparisonProvider";
 import { LazyImage } from "@/components/ui/lazy-image";
+import { useEffect, useState } from "react";
 
 type Project = {
   id: string;
@@ -45,6 +46,17 @@ export default function ProjectCard({
   const areaFrom = project.min_unit_area;
   const areaTo = project.max_unit_area;
   const roomsAvailable = project.rooms_available || [];
+  const [showSwipeHint, setShowSwipeHint] = useState(false);
+
+
+  useEffect(() => {
+    if (images.length > 1) {
+      setShowSwipeHint(true);
+      const t = setTimeout(() => setShowSwipeHint(false), 2200);
+      return () => clearTimeout(t);
+    }
+  }, [images.length]);
+
   const unitsCount = project.units_count || 0;
 
   const handleCardClick = () => {
@@ -147,11 +159,18 @@ export default function ProjectCard({
           </button>
         </div>
 
-        {/* Количество фото */}
+        {/* Количество фото и подсказка свайпа */}
         {images.length > 1 && (
-          <div className="absolute bottom-2 right-2 bg-background/90 backdrop-blur-sm px-1.5 py-0.5 sm:px-2 sm:py-1 rounded text-xs border border-border/20">
-            {images.length} фото
-          </div>
+          <>
+            <div className="absolute bottom-2 right-2 bg-background/90 backdrop-blur-sm px-1.5 py-0.5 sm:px-2 sm:py-1 rounded text-xs border border-border/20">
+              {images.length} фото
+            </div>
+            {showSwipeHint && (
+              <div className="absolute bottom-2 left-2 sm:hidden bg-background/90 backdrop-blur-sm px-2 py-1 rounded text-xs border border-border/20">
+                Свайп →
+              </div>
+            )}
+          </>
         )}
       </div>
 

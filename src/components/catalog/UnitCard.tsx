@@ -114,14 +114,14 @@ export default function UnitCard({ unit }: { unit: Unit }) {
         <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <button 
             onClick={toggleFavorite}
-            className="rounded-full bg-background/90 backdrop-blur-sm p-2 shadow-lg hover:bg-background transition-colors border border-border/20"
+            className="hover-scale rounded-full bg-background/90 backdrop-blur-sm p-2 shadow-lg hover:bg-background transition-colors border border-border/20"
           >
             <Heart className={`size-4 ${isFavorite ? "text-red-500 fill-red-500" : "text-muted-foreground"}`} />
           </button>
           <button 
             onClick={handleAddToComparison}
             disabled={!canAddMore && !isInComparison(unit.id)}
-            className={`rounded-full bg-background/90 backdrop-blur-sm p-2 shadow-lg hover:bg-background transition-colors border border-border/20 ${
+            className={`hover-scale rounded-full bg-background/90 backdrop-blur-sm p-2 shadow-lg hover:bg-background transition-colors border border-border/20 ${
               isInComparison(unit.id) ? 'bg-primary text-primary-foreground border-primary' : ''
             }`}
           >
@@ -130,7 +130,7 @@ export default function UnitCard({ unit }: { unit: Unit }) {
           {coverFull && (
             <button 
               onClick={handleViewPlan}
-              className="rounded-full bg-background/90 backdrop-blur-sm p-2 shadow-lg hover:bg-background transition-colors border border-border/20"
+              className="hover-scale rounded-full bg-background/90 backdrop-blur-sm p-2 shadow-lg hover:bg-background transition-colors border border-border/20"
             >
               <Eye className="size-4 text-muted-foreground" />
             </button>
@@ -173,7 +173,7 @@ export default function UnitCard({ unit }: { unit: Unit }) {
 
         {/* Действия */}
         <div className="grid grid-cols-2 gap-2 pt-2">
-          <Button variant="hero" size="sm" onClick={handleCall}>
+          <Button variant="hero" size="sm" onClick={handleCall} className="hover-scale">
             <Phone className="mr-1 size-3" />
             Звонок
           </Button>

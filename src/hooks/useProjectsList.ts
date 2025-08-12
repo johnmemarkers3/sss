@@ -20,7 +20,9 @@ export function useProjectsList(params: Params = {}) {
     queryKey: ["projects", params],
     queryFn: async () => {
       console.log("[useProjectsList] fetching with params", params);
-      let q = supabase.from("projects_with_stats").select("*");
+      let q = supabase
+        .from("projects_with_stats")
+        .select("id, slug, name, address, city, district, status, price_min, price_max, min_unit_price, max_unit_price, area_min, area_max, min_unit_area, max_unit_area, image_urls, tags, units_count, rooms_available, created_at");
 
       // Поиск по названию/адресу/городу/району
       if (params.search && params.search.trim()) {

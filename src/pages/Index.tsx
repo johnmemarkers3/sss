@@ -255,7 +255,51 @@ const Index = () => {
           </Sheet>
         </div>
       </SiteHeader>
-
+      {/* Активные фильтры (чипы) */}
+      <div className="container px-4 sm:px-0 py-2 sm:py-3">
+        <div className="flex flex-wrap gap-2">
+          {filters.query && (
+            <Button size="sm" variant="secondary" className="hover-scale" onClick={() => setFilters({ ...filters, query: "" })}>
+              Поиск: “{filters.query}” ×
+            </Button>
+          )}
+          {(filters.price[0] !== 0 || filters.price[1] !== 50_000_000) && (
+            <Button size="sm" variant="secondary" className="hover-scale" onClick={() => setFilters({ ...filters, price: [0, 50_000_000] })}>
+              Цена: {filters.price[0].toLocaleString('ru-RU')}–{filters.price[1].toLocaleString('ru-RU')} ₽ ×
+            </Button>
+          )}
+          {(filters.area[0] !== 20 || filters.area[1] !== 200) && (
+            <Button size="sm" variant="secondary" className="hover-scale" onClick={() => setFilters({ ...filters, area: [20, 200] })}>
+              Площадь: {filters.area[0]}–{filters.area[1]} м² ×
+            </Button>
+          )}
+          {filters.rooms.length > 0 && (
+            <Button size="sm" variant="secondary" className="hover-scale" onClick={() => setFilters({ ...filters, rooms: [] })}>
+              Комнат: {filters.rooms.sort((a,b)=>a-b).join(', ')} ×
+            </Button>
+          )}
+          {filters.city && (
+            <Button size="sm" variant="secondary" className="hover-scale" onClick={() => setFilters({ ...filters, city: undefined })}>
+              Город: {filters.city} ×
+            </Button>
+          )}
+          {filters.district && (
+            <Button size="sm" variant="secondary" className="hover-scale" onClick={() => setFilters({ ...filters, district: undefined })}>
+              Район: {filters.district} ×
+            </Button>
+          )}
+          {filters.status && (
+            <Button size="sm" variant="secondary" className="hover-scale" onClick={() => setFilters({ ...filters, status: undefined })}>
+              Статус: {filters.status} ×
+            </Button>
+          )}
+          {(filters.query || filters.rooms.length || filters.city || filters.district || filters.status || filters.price[0] !== 0 || filters.price[1] !== 50_000_000 || filters.area[0] !== 20 || filters.area[1] !== 200) ? (
+            <Button size="sm" variant="ghost" className="hover-scale" onClick={resetFilters}>
+              Сбросить всё
+            </Button>
+          ) : null}
+        </div>
+      </div>
       <div className="hidden sm:block sticky top-16 z-30 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container py-4 animate-fade-in">
           {FiltersPanel}

@@ -134,6 +134,17 @@ export default function ProjectDetail() {
         <title>{`${project.name} — объект новостройки`}</title>
         <meta name="description" content={`Цена от ${data?.stats?.min_unit_price ?? project.price_min} ₽. Площадь ${data?.stats?.min_unit_area ?? project.area_min}–${data?.stats?.max_unit_area ?? project.area_max} м². ${addressFull}.`} />
         <link rel="canonical" href={typeof window !== 'undefined' ? window.location.href : '/'} />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Главная", item: (typeof window !== 'undefined' ? `${window.location.origin}/` : "/") },
+              { "@type": "ListItem", position: 2, name: "Каталог", item: (typeof window !== 'undefined' ? `${window.location.origin}/catalog` : "/catalog") },
+              { "@type": "ListItem", position: 3, name: project.name, item: (typeof window !== 'undefined' ? window.location.href : "/") }
+            ]
+          })}
+        </script>
       </Helmet>
 
       <SiteHeader>
@@ -285,7 +296,7 @@ export default function ProjectDetail() {
               <Separator />
 
               <div className="grid gap-3">
-                <Button asChild variant="hero" size="lg">
+                <Button asChild variant="hero" size="lg" className="hover-scale">
                   <a href="tel:+79990000000">
                     <Phone className="mr-2" /> Позвонить
                   </a>
@@ -299,11 +310,12 @@ export default function ProjectDetail() {
                 </div>
                 
                 <div className="grid grid-cols-2 gap-2">
-                  <Button variant="outline" onClick={handleShare}>
+                  <Button variant="outline" className="hover-scale" onClick={handleShare}>
                     <Share2 className="mr-2" /> Поделиться
                   </Button>
                   <Button 
                     variant={isFavorite ? "default" : "outline"} 
+                    className="hover-scale"
                     onClick={toggleFavorite}
                   >
                     <Heart className={`mr-2 ${isFavorite ? "fill-current" : ""}`} />
