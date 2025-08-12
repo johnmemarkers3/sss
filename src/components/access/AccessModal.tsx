@@ -19,6 +19,14 @@ export function AccessModal() {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      setBusy(false);
+      return toast({ title: "Некорректный email", description: "Проверьте адрес и попробуйте снова" });
+    }
+    if (password.length < 8) {
+      setBusy(false);
+      return toast({ title: "Слабый пароль", description: "Минимум 8 символов" });
+    }
     const { error } = await signIn(email, password);
     setBusy(false);
     if (error) toast({ title: "Ошибка входа", description: error.message });
@@ -27,6 +35,14 @@ export function AccessModal() {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      setBusy(false);
+      return toast({ title: "Некорректный email", description: "Проверьте адрес и попробуйте снова" });
+    }
+    if (password.length < 8) {
+      setBusy(false);
+      return toast({ title: "Слабый пароль", description: "Минимум 8 символов" });
+    }
     const { error } = await signUp(email, password);
     setBusy(false);
     if (error) {

@@ -17,6 +17,8 @@ export default function AccessGate() {
 
   // Lock while loading to avoid content flashing, skip for admin routes
   const locked = !isAdminRoute && !isAdmin && (loading || !user || !isActive);
+  // If Supabase requires email confirmation, signUp will auto-login only when project is configured to auto-confirm.
+
 
   useEffect(() => {
     if (locked) {

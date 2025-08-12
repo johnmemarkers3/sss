@@ -26,12 +26,13 @@ export default function AdminLogin() {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
-    const { error } = await signUp(email, password);
+    const { error } = await signUp(email, password, { makeAdminIfNone: true });
     setBusy(false);
     if (error) {
       toast({ title: "Ошибка регистрации", description: error.message });
     } else {
-      toast({ title: "Готово", description: "Администратор зарегистрирован. Выполните вход." });
+      toast({ title: "Готово", description: "Учётная запись создана и авторизована" });
+      window.location.href = "/admin/dashboard";
     }
   };
 
@@ -66,7 +67,7 @@ export default function AdminLogin() {
               </div>
               <Button disabled={busy || loading} variant="hero" className="w-full" type="submit">Войти</Button>
             </form>
-            <Button disabled={busy || loading} variant="outline" className="w-full" onClick={handleSignUp}>Зарегистрировать аккаунт</Button>
+            <Button disabled={busy || loading} variant="outline" className="w-full" onClick={handleSignUp}>Зарегистрировать администратора</Button>
             {user && (
               <p className="text-xs text-muted-foreground">Вы уже вошли. {isAdmin ? "Перейти в админку" : "Нет прав администратора"}.</p>
             )}

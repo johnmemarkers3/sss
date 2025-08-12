@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "@/hooks/use-toast";
 import { Phone, Share2, Heart, MapPin, ArrowLeft } from "lucide-react";
 import SiteHeader from "@/components/layout/SiteHeader";
+import { LazyImage } from "@/components/ui/lazy-image";
 
 export default function ObjectDetail() {
   const { id } = useParams();
@@ -53,7 +54,7 @@ export default function ObjectDetail() {
             <CarouselContent>
               {item.images.map((src, idx) => (
                 <CarouselItem key={idx} className="md:basis-2/3 lg:basis-1/2">
-                  <img src={src} alt={`Фото ${idx + 1} — ${item.title}`} className="w-full h-80 object-cover rounded-md" />
+                  <LazyImage src={src} alt={`Фото ${idx + 1} — ${item.title}`} className="w-full h-80 object-cover rounded-md" />
                 </CarouselItem>
               ))}
             </CarouselContent>
@@ -111,7 +112,7 @@ export default function ObjectDetail() {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {properties.filter(p => p.id !== item.id).slice(0, 3).map(p => (
               <Card key={p.id} className="overflow-hidden">
-                <img src={p.images[0]} alt={`Похожий объект ${p.title}`} className="w-full h-36 object-cover" />
+                <LazyImage src={p.images[0]} alt={`Похожий объект ${p.title}`} className="w-full h-36 object-cover" />
                 <CardContent className="p-4">
                   <div className="font-medium truncate">{p.title}</div>
                   <div className="text-sm text-muted-foreground">{p.district}, {p.address}</div>
