@@ -15,6 +15,7 @@ import { Building2, Plus, Upload, Eye, Trash2, Home } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Separator } from "@/components/ui/separator";
 import { Link } from "react-router-dom";
+import { AccessKeysAdmin } from "@/components/access/AccessKeysAdmin";
 
 function useProjects() {
   const [projects, setProjects] = useState<any[]>([]);
