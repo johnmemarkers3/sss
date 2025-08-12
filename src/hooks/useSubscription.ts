@@ -47,9 +47,14 @@ export function useSubscription() {
   }, [user?.id]);
 
   useEffect(() => {
-    const handler = () => setExpiresAt(localStorage.getItem('subscription_active_until'));
-    window.addEventListener('storage', handler);
-    return () => window.removeEventListener('storage', handler);
+    const sync = () => setExpiresAt(localStorage.getItem('subscription_active_until'));
+    window.addEventListener('storage', sync);
+    // Custom event to sync within the same tab
+    window.addEventListener('subscription_updated', sync as EventListener);
+    return () => {
+      window.removeEventListener('storage', sync);
+      window.removeEventListener('subscription_updated', sync as EventListener);
+    };
   }, []);
 
   const isActive = useMemo(() => {
@@ -110,6 +115,7 @@ export function useSubscription() {
       const iso = exp.toISOString();
       localStorage.setItem('subscription_active_until', iso);
       setExpiresAt(iso);
+      window.dispatchEvent(new CustomEvent('subscription_updated', { detail: iso }));
       return { ok: true, message: 'Доступ активирован' };
     } catch (e: any) {
       console.error('[activateWithKey] unexpected', e);
@@ -120,6 +126,7 @@ export function useSubscription() {
   const clearSubscription = useCallback(() => {
     localStorage.removeItem('subscription_active_until');
     setExpiresAt(null);
+    window.dispatchEvent(new CustomEvent('subscription_updated'));
   }, []);
 
   return { isActive, expiresAt, loading, activateWithKey, clearSubscription };

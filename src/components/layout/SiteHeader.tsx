@@ -1,16 +1,36 @@
 import { PropsWithChildren } from "react";
 import { Link } from "react-router-dom";
 import { Building2, Menu } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ComparisonDrawer from "@/components/ComparisonDrawer";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/hooks/useAuth";
+import { useSubscription } from "@/hooks/useSubscription";
+import { useOnlineSimulator } from "@/hooks/useOnlineSimulator";
 
 const SiteHeader = ({ children }: PropsWithChildren) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isMobile = useIsMobile();
+  const { user, signOut } = useAuth();
+  const { isActive, expiresAt } = useSubscription();
+  const online = useOnlineSimulator();
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 30000);
+    return () => clearInterval(id);
+  }, []);
+  const remaining = (() => {
+    if (!expiresAt) return '';
+    const diff = Date.parse(expiresAt) - now;
+    if (!Number.isFinite(diff) || diff <= 0) return '0м';
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    return d > 0 ? `${d}д ${h}ч` : `${h}ч ${m}м`;
+  })();
 
   return (
     <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
@@ -26,9 +46,19 @@ const SiteHeader = ({ children }: PropsWithChildren) => {
         
         <div className="flex items-center gap-1 shrink-0">
           <ComparisonDrawer />
-          
-          {/* Десктопная тема */}
-          <div className="hidden sm:block">
+
+          {/* Десктопные элементы */}
+          <div className="hidden sm:flex items-center gap-2 mr-1">
+            <Button asChild variant="ghost" size="sm">
+              <Link to="/admin">Админка</Link>
+            </Button>
+            <span className="text-xs text-muted-foreground">Онлайн: {online}</span>
+            {user && isActive && remaining && (
+              <span className="text-xs text-muted-foreground">Осталось: {remaining}</span>
+            )}
+            {user && (
+              <Button variant="outline" size="sm" onClick={signOut}>Выйти</Button>
+            )}
             <ThemeToggle />
           </div>
           
