@@ -629,8 +629,9 @@ export default function AdminDashboard() {
           </TabsContent>
 
           <TabsContent value="manage" className="space-y-6">
+            <AccessKeysAdmin />
             {/* Управление объектами */}
-            <Card>
+              <Card>
               <CardHeader>
                 <CardTitle className="flex items-center justify-between gap-2">
                   <span className="flex items-center gap-2">
