@@ -6,8 +6,9 @@ import SiteHeader from "@/components/layout/SiteHeader";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 export default function AdminLogin() {
-  const { signIn, signUp, user, isAdmin, loading } = useAuth();
+  const { signIn, user, isAdmin, loading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -16,23 +17,31 @@ export default function AdminLogin() {
     e.preventDefault();
     setBusy(true);
     const { error } = await signIn(email, password);
-    setBusy(false);
     if (error) {
+      setBusy(false);
       toast({ title: "Ошибка входа", description: error.message });
-    } else {
-      window.location.href = "/admin/dashboard";
+      return;
     }
-  };
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setBusy(true);
-    const { error } = await signUp(email, password, { makeAdminIfNone: true });
+
+    // Проверим роль из профиля перед редиректом
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    if (!currentUser) {
+      setBusy(false);
+      toast({ title: "Ошибка", description: "Не удалось получить пользователя" });
+      return;
+    }
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('user_id', currentUser.id)
+      .maybeSingle();
+
     setBusy(false);
-    if (error) {
-      toast({ title: "Ошибка регистрации", description: error.message });
-    } else {
-      toast({ title: "Готово", description: "Учётная запись создана и авторизована" });
+    if (profile?.role === 'admin') {
       window.location.href = "/admin/dashboard";
+    } else {
+      toast({ title: "Нет доступа", description: "У вас нет прав администратора" });
     }
   };
 
@@ -67,7 +76,7 @@ export default function AdminLogin() {
               </div>
               <Button disabled={busy || loading} variant="hero" className="w-full" type="submit">Войти</Button>
             </form>
-            <Button disabled={busy || loading} variant="outline" className="w-full" onClick={handleSignUp}>Зарегистрировать администратора</Button>
+            
             {user && (
               <p className="text-xs text-muted-foreground">Вы уже вошли. {isAdmin ? "Перейти в админку" : "Нет прав администратора"}.</p>
             )}

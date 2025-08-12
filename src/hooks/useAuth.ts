@@ -34,20 +34,8 @@ export function useAuth() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Determine desired role for first user (optional admin bootstrap)
-  const determineRole = useCallback(async (preferAdmin: boolean) => {
-    if (!preferAdmin) return 'user' as const;
-    try {
-      const { count } = await supabase
-        .from('profiles')
-        .select('role', { count: 'exact', head: true })
-        .eq('role', 'admin');
-      return (count ?? 0) === 0 ? 'admin' : 'user';
-    } catch (e) {
-      console.warn('[useAuth] admin count error', e);
-      return 'user' as const;
-    }
-  }, []);
+  // Admin bootstrap disabled: all signups are regular users
+
 
   const ensureProfile = useCallback(async (userId: string, role: 'user' | 'admin' = 'user') => {
     try {
@@ -122,33 +110,42 @@ export function useAuth() {
     return { error };
   }, [ensureProfile]);
 
-  const signUp = useCallback(async (email: string, password: string, options?: { makeAdminIfNone?: boolean }) => {
+  const signUp = useCallback(async (email: string, password: string, _options?: { makeAdminIfNone?: boolean }) => {
     cleanupAuthState();
     try { await supabase.auth.signOut({ scope: 'global' }); } catch {}
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
       return { error: new Error('Введите корректный email') as any };
     }
     if (password.length < 8) {
       return { error: new Error('Минимум 8 символов в пароле') as any };
     }
 
-    // Try to create the user
-    const { error: signUpError } = await supabase.auth.signUp({ email, password });
-    if (signUpError) return { error: signUpError };
+    // Create the user (Supabase stores password securely as a hash)
+    const { error: signUpError } = await supabase.auth.signUp({ email: normalizedEmail, password });
+    if (signUpError) {
+      const msg = /already/i.test(signUpError.message)
+        ? 'Такой email уже зарегистрирован'
+        : signUpError.message;
+      return { error: new Error(msg) as any };
+    }
 
-    // Auto sign-in right after successful signup
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) return { error };
+    // Auto sign-in immediately after successful signup
+    const { data, error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
+    if (error) {
+      const msg = /invalid/i.test(error.message) ? 'Неверный email или пароль' : error.message;
+      return { error: new Error(msg) as any };
+    }
 
-    // Ensure profile exists and optionally set first user as admin
+    // Ensure user profile exists and always set role to 'user'
     const userId = data.user?.id;
     if (userId) {
-      const role = await determineRole(!!options?.makeAdminIfNone);
-      await ensureProfile(userId, role);
+      await ensureProfile(userId, 'user');
     }
     return { error: null };
-  }, [determineRole, ensureProfile]);
+  }, [ensureProfile]);
 
   const signOut = useCallback(async () => {
     cleanupAuthState();
