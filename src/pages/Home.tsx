@@ -35,7 +35,6 @@ export default function Home() {
         <div className="hidden sm:flex gap-3">
           <Button asChild variant="outline"><Link to="/catalog">Каталог</Link></Button>
           <StableInstallmentCalculator />
-          <Button asChild variant="outline"><Link to="/admin">Админка</Link></Button>
         </div>
       </SiteHeader>
 

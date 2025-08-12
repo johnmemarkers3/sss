@@ -31,9 +31,9 @@ export function useOnlineSimulator(options: OnlineSimulatorOptions = {}) {
     max = 130,
     initial,
     minStep = 1,
-    maxStep = 3,
-    minDelayMs = 900,
-    maxDelayMs = 3500,
+    maxStep = 1,
+    minDelayMs = 20000,
+    maxDelayMs = 60000,
     log = true,
   } = options;
 

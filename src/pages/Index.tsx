@@ -233,7 +233,6 @@ const Index = () => {
         </div>
         <div className="hidden sm:flex gap-2">
           <StableInstallmentCalculator />
-          <Button asChild variant="outline"><Link to="/admin">Админка</Link></Button>
         </div>
         <div className="sm:hidden flex gap-1">
           <StableInstallmentCalculator />
