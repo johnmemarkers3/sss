@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Session, User } from "@supabase/supabase-js";
+import { isBlocked, recordAttempt } from "@/utils/rateLimiter";
 
 export type Profile = {
   user_id: string;
@@ -95,6 +96,11 @@ export function useAuth() {
   }, []);
 
   const signIn = useCallback(async (email: string, password: string) => {
+    const key = `auth:${email.trim().toLowerCase()}`;
+    const block = isBlocked(key);
+    if (block.blocked) {
+      return { error: new Error('Слишком много попыток. Попробуйте позже.') as any };
+    }
     cleanupAuthState();
     try { await supabase.auth.signOut({ scope: 'global' }); } catch {}
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -104,6 +110,7 @@ export function useAuth() {
       return { error: new Error('Минимум 8 символов в пароле') as any };
     }
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    recordAttempt(key, !error);
     if (!error && data.user?.id) {
       await ensureProfile(data.user.id, 'user');
     }
@@ -115,6 +122,11 @@ export function useAuth() {
     try { await supabase.auth.signOut({ scope: 'global' }); } catch {}
 
     const normalizedEmail = email.trim().toLowerCase();
+    const key = `signup:${normalizedEmail}`;
+    const block = isBlocked(key);
+    if (block.blocked) {
+      return { error: new Error('Слишком много попыток. Попробуйте позже.') as any };
+    }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
       return { error: new Error('Введите корректный email') as any };
@@ -126,6 +138,7 @@ export function useAuth() {
     // Create the user (Supabase stores password securely as a hash)
     const { error: signUpError } = await supabase.auth.signUp({ email: normalizedEmail, password });
     if (signUpError) {
+      recordAttempt(key, false);
       const msg = /already/i.test(signUpError.message)
         ? 'Такой email уже зарегистрирован'
         : signUpError.message;
@@ -135,6 +148,7 @@ export function useAuth() {
     // Auto sign-in immediately after successful signup
     const { data, error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
     if (error) {
+      recordAttempt(key, false);
       const msg = /invalid/i.test(error.message) ? 'Неверный email или пароль' : error.message;
       return { error: new Error(msg) as any };
     }
@@ -144,8 +158,27 @@ export function useAuth() {
     if (userId) {
       await ensureProfile(userId, 'user');
     }
+    recordAttempt(key, true);
     return { error: null };
   }, [ensureProfile]);
+
+  const requestPasswordReset = useCallback(async (email: string) => {
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      return { error: new Error('Введите корректный email') as any };
+    }
+    const redirectTo = typeof window !== 'undefined' ? `${window.location.origin}/reset-password` : undefined;
+    const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, { redirectTo });
+    return { error };
+  }, []);
+
+  const updatePassword = useCallback(async (newPassword: string) => {
+    if (newPassword.length < 8) {
+      return { error: new Error('Минимум 8 символов в пароле') as any };
+    }
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    return { error };
+  }, []);
 
   const signOut = useCallback(async () => {
     cleanupAuthState();
@@ -154,6 +187,6 @@ export function useAuth() {
   }, []);
 
   const isAdmin = profile?.role === 'admin';
-
-  return { session, user, profile, isAdmin, loading, signIn, signUp, signOut };
+ 
+  return { session, user, profile, isAdmin, loading, signIn, signUp, signOut, requestPasswordReset, updatePassword };
 }
