@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { ComparisonProvider } from "@/components/ComparisonProvider";
+import AccessGate from "@/components/access/AccessGate";
 const Index = lazy(() => import("./pages/Index"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ObjectDetail = lazy(() => import("./pages/ObjectDetail"));
@@ -18,6 +19,7 @@ const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const AdminProjectEdit = lazy(() => import("./pages/AdminProjectEdit"));
 
 const queryClient = new QueryClient();
+
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -50,6 +52,9 @@ const App = () => (
                 </Routes>
               </Suspense>
             </BrowserRouter>
+            {/* Global access gate overlay */}
+            {/** The AccessGate is rendered globally so it can block all routes */}
+            <AccessGate />
           </TooltipProvider>
         </ComparisonProvider>
       </HelmetProvider>
