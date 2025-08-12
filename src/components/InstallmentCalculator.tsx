@@ -136,7 +136,7 @@ export default function InstallmentCalculator({ initialPrice, projectName }: Cal
     setInterestRate("0");
   };
 
-  const CalculatorContent = ({ inDrawer = false }: { inDrawer?: boolean }) => (
+  const renderCalculatorContent = (inDrawer = false) => (
     <div className={`grid gap-4 sm:gap-6 ${inDrawer ? '' : 'lg:grid-cols-2'}`}>
       {/* Параметры расчёта */}
       <div className="space-y-4 sm:space-y-6">
@@ -328,7 +328,7 @@ export default function InstallmentCalculator({ initialPrice, projectName }: Cal
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-muted-foreground text-sm">Общая переплата</span>
-                      <span className={`font-medium ${overpayment > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                      <span className={`${overpayment > 0 ? 'text-red-600' : 'text-green-600'} font-medium`}>
                         {formatCurrency(overpayment)}
                       </span>
                     </div>
@@ -390,7 +390,7 @@ export default function InstallmentCalculator({ initialPrice, projectName }: Cal
           </DrawerHeader>
           <ScrollArea className="h-[calc(95vh-80px)]">
             <div className="px-4 pb-6">
-              <CalculatorContent inDrawer={true} />
+              {renderCalculatorContent(true)}
             </div>
           </ScrollArea>
         </DrawerContent>
@@ -412,7 +412,7 @@ export default function InstallmentCalculator({ initialPrice, projectName }: Cal
           </DialogTitle>
           <DialogDescription>Введите параметры для расчёта и сравните варианты.</DialogDescription>
         </DialogHeader>
-        <CalculatorContent />
+        {renderCalculatorContent()}
       </DialogContent>
     </Dialog>
   );
