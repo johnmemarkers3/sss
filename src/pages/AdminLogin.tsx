@@ -31,7 +31,7 @@ export default function AdminLogin() {
     if (error) {
       toast({ title: "Ошибка регистрации", description: error.message });
     } else {
-      toast({ title: "Письмо отправлено", description: "Подтвердите email и войдите" });
+      toast({ title: "Готово", description: "Администратор зарегистрирован. Выполните вход." });
     }
   };
 

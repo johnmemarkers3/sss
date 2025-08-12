@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
 import { AccessModal } from "./AccessModal";
+import { useLocation } from "react-router-dom";
 
 /**
  * Global gate that blocks interaction with the entire app
@@ -11,9 +12,11 @@ import { AccessModal } from "./AccessModal";
 export default function AccessGate() {
   const { loading, isAdmin, user } = useAuth();
   const { isActive } = useSubscription();
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
 
-  // Lock while loading to avoid content flashing
-  const locked = !isAdmin && (loading || !user || !isActive);
+  // Lock while loading to avoid content flashing, skip for admin routes
+  const locked = !isAdminRoute && !isAdmin && (loading || !user || !isActive);
 
   useEffect(() => {
     if (locked) {

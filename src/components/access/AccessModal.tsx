@@ -32,10 +32,9 @@ export function AccessModal() {
     if (error) {
       toast({ title: "Ошибка регистрации", description: error.message });
     } else {
-      toast({ title: "Письмо отправлено", description: "Подтвердите email и войдите" });
+      toast({ title: "Готово", description: "Регистрация выполнена. Вы вошли в аккаунт." });
     }
   };
-
   const handleActivate = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);

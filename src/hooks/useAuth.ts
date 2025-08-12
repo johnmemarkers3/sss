@@ -82,12 +82,14 @@ export function useAuth() {
   const signUp = useCallback(async (email: string, password: string) => {
     cleanupAuthState();
     try { await supabase.auth.signOut({ scope: 'global' }); } catch {}
-    const redirectUrl = `${window.location.origin}/`;
-    const { error } = await supabase.auth.signUp({
+    // Try to create the user and sign them in immediately (no email confirmation flow)
+    const { error: signUpError } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: redirectUrl }
     });
+    if (signUpError) return { error: signUpError };
+    // Auto sign-in right after successful signup
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
     return { error };
   }, []);
 
