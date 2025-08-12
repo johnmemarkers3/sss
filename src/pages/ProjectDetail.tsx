@@ -163,11 +163,15 @@ export default function ProjectDetail() {
         <Breadcrumb className="mb-2">
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/">Главная</BreadcrumbLink>
+              <BreadcrumbLink asChild>
+                <Link to="/">Главная</Link>
+              </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href="/catalog">Каталог</BreadcrumbLink>
+              <BreadcrumbLink asChild>
+                <Link to="/catalog">Каталог</Link>
+              </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>

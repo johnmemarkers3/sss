@@ -35,6 +35,8 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              {/* Global access gate overlay inside Router context */}
+              <AccessGate />
               <Suspense fallback={<div className="container py-10 text-muted-foreground">Загрузка…</div>}>
                 <Routes>
                   <Route path="/" element={<Home />} />
@@ -52,9 +54,6 @@ const App = () => (
                 </Routes>
               </Suspense>
             </BrowserRouter>
-            {/* Global access gate overlay */}
-            {/** The AccessGate is rendered globally so it can block all routes */}
-            <AccessGate />
           </TooltipProvider>
         </ComparisonProvider>
       </HelmetProvider>
