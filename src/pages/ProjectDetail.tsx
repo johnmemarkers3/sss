@@ -16,6 +16,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Slider } from "@/components/ui/slider";
 import StableInstallmentCalculator from "@/components/StableInstallmentCalculator";
 import { LazyImage } from "@/components/ui/lazy-image";
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 
 export default function ProjectDetail() {
   const { slug } = useParams();
@@ -148,6 +149,21 @@ export default function ProjectDetail() {
       </SiteHeader>
 
       <main className="container py-6 space-y-8">
+        <Breadcrumb className="mb-2">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/">Главная</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/catalog">Каталог</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{project.name}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
         {/* Большая галерея фото */}
         <section>
           {images.length > 0 ? (

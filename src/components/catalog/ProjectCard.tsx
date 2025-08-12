@@ -103,7 +103,7 @@ export default function ProjectCard({
             {project.status}
           </Badge>
           {(project.tags || []).slice(0, 1).map((tag) => (
-            <Badge key={tag} variant="outline" className="bg-background/80">
+            <Badge key={tag} variant="outline" className="bg-background/90">
               {tag}
             </Badge>
           ))}
@@ -119,7 +119,7 @@ export default function ProjectCard({
                 e.preventDefault();
                 onToggleFavorite();
               }}
-              className="rounded-full bg-background/90 backdrop-blur-sm p-1.5 sm:p-2 shadow-lg hover:bg-background transition-colors border border-border/20"
+              className="hover-scale rounded-full bg-background/90 backdrop-blur-sm p-1.5 sm:p-2 shadow-lg hover:bg-background transition-colors border border-border/20"
             >
               <Heart className={`size-4 ${isFavorite ? "text-red-500 fill-red-500" : "text-muted-foreground"}`} />
             </button>
@@ -128,7 +128,7 @@ export default function ProjectCard({
             aria-label="Добавить к сравнению"
             onClick={handleAddToComparison}
             disabled={!canAddMore && !isInComparison(project.id)}
-            className={`rounded-full bg-background/90 backdrop-blur-sm p-1.5 sm:p-2 shadow-lg hover:bg-background transition-colors border border-border/20 ${
+            className={`hover-scale rounded-full bg-background/90 backdrop-blur-sm p-1.5 sm:p-2 shadow-lg hover:bg-background transition-colors border border-border/20 ${
               isInComparison(project.id) ? 'bg-primary text-primary-foreground border-primary' : ''
             }`}
           >
@@ -141,7 +141,7 @@ export default function ProjectCard({
               e.preventDefault();
               handleCardClick();
             }}
-            className="rounded-full bg-background/90 backdrop-blur-sm p-1.5 sm:p-2 shadow-lg hover:bg-background transition-colors border border-border/20"
+            className="hover-scale rounded-full bg-background/90 backdrop-blur-sm p-1.5 sm:p-2 shadow-lg hover:bg-background transition-colors border border-border/20"
           >
             <Eye className="size-4 text-muted-foreground" />
           </button>
@@ -216,7 +216,7 @@ export default function ProjectCard({
           <Button 
             asChild 
             variant="outline" 
-            className="w-full h-9 sm:h-10 text-xs sm:text-sm"
+            className="hover-scale w-full h-9 sm:h-10 text-xs sm:text-sm"
             onClick={(e) => e.stopPropagation()}
           >
             <Link to={`/project/${project.slug}`}>
