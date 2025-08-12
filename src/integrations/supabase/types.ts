@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_keys: {
+        Row: {
+          assigned_email: string | null
+          created_at: string
+          created_by: string | null
+          duration_days: number
+          expires_at: string | null
+          id: string
+          is_used: boolean
+          key: string
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          assigned_email?: string | null
+          created_at?: string
+          created_by?: string | null
+          duration_days: number
+          expires_at?: string | null
+          id?: string
+          is_used?: boolean
+          key: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          assigned_email?: string | null
+          created_at?: string
+          created_by?: string | null
+          duration_days?: number
+          expires_at?: string | null
+          id?: string
+          is_used?: boolean
+          key?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -107,6 +146,24 @@ export type Database = {
           tags?: string[]
           thumbnail_urls?: string[]
           updated_at?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          active_until: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active_until?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active_until?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
