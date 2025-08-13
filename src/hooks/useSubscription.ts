@@ -83,11 +83,8 @@ export function useSubscription() {
         return { ok: false, message: 'Сервер недоступен. Настройте таблицы подписки в Supabase.' };
       }
       if (!k) return { ok: false, message: 'Ключ недействителен' };
-      if (k.is_used && (!k.expires_at || Date.parse(k.expires_at) <= Date.now())) {
-        return { ok: false, message: 'Ключ уже использован' };
-      }
-      if (k.is_used && k.used_by && k.used_by !== user.id) {
-        return { ok: false, message: 'Ключ уже привязан к другому пользователю' };
+      if (k.is_used) {
+        return { ok: false, message: 'Ключ уже использован другим пользователем' };
       }
 
       const days = Number(k.duration_days || 0);

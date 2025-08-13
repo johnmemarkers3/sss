@@ -178,10 +178,15 @@ export function AccessKeysAdmin() {
             )}
              {keys.map((k) => (
                <div key={k.id} className="p-4 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                 <div className="font-mono text-sm break-all">{k.key}</div>
-                 <div className="flex-1 text-sm text-muted-foreground">
-                   {k.duration_days} дн. • {k.assigned_email || 'без email'}
-                 </div>
+                  <div className="font-mono text-sm break-all">{k.key}</div>
+                  <div className="flex-1 text-sm text-muted-foreground">
+                    {k.duration_days} дн. • {k.assigned_email || 'без email'}
+                    {k.is_used && k.used_at && (
+                      <div className="text-xs mt-1">
+                        Использован: {new Date(k.used_at).toLocaleString()}
+                      </div>
+                    )}
+                  </div>
                  <div className="flex items-center gap-2">
                     <Badge variant={k.is_used ? 'secondary' : 'default'}>
                       {k.is_used ? 'Занят' : 'Свободен'}
