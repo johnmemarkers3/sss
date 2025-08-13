@@ -183,9 +183,9 @@ export function AccessKeysAdmin() {
                    {k.duration_days} дн. • {k.assigned_email || 'без email'}
                  </div>
                  <div className="flex items-center gap-2">
-                   <Badge variant={k.is_used ? 'secondary' : 'default'}>
-                     {k.is_used ? 'Использован' : 'Свободен'}
-                   </Badge>
+                    <Badge variant={k.is_used ? 'secondary' : 'default'}>
+                      {k.is_used ? 'Занят' : 'Свободен'}
+                    </Badge>
                    {k.expires_at && (
                      <span className="text-xs text-muted-foreground">до {new Date(k.expires_at).toLocaleString()}</span>
                    )}
