@@ -72,11 +72,35 @@ export function useSubscription() {
     if (!user) return { ok: false, message: 'Войдите в аккаунт' };
 
     try {
-      const days = 30; // временно используем стандартное значение
+      // 1) Сначала найдем ключ и проверим что он свободен
+      const { data: keyData, error: findErr } = await (supabase as any)
+        .from('access_keys')
+        .select('id, duration_days, is_used')
+        .eq('key', trimmed)
+        .maybeSingle();
+
+      if (findErr) {
+        console.warn('[activateWithKey] find key error:', findErr.message);
+        return { ok: false, message: 'Ошибка поиска ключа' };
+      }
+
+      if (!keyData) {
+        return { ok: false, message: 'Ключ не найден' };
+      }
+
+      if (keyData.is_used) {
+        return { ok: false, message: 'Ключ уже использован' };
+      }
+
+      const days = Number(keyData.duration_days || 30);
+      if (!Number.isFinite(days) || days <= 0) {
+        return { ok: false, message: 'Некорректный срок действия ключа' };
+      }
+
       const exp = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
 
-      // Атомарная операция: пытаемся обновить ключ только если он еще не использован
-      const { data: updatedKey, error: updateErr } = await (supabase as any)
+      // 2) Атомарно захватываем ключ (только если он still свободен)
+      const { data: updatedKeys, error: updateErr } = await (supabase as any)
         .from('access_keys')
         .update({ 
           is_used: true, 
@@ -84,47 +108,37 @@ export function useSubscription() {
           used_at: new Date().toISOString(), 
           expires_at: exp.toISOString() 
         })
-        .eq('key', trimmed)
+        .eq('id', keyData.id)
         .eq('is_used', false) // ключевое условие - только если НЕ использован
-        .select('id, duration_days')
-        .single();
+        .select('id');
 
       if (updateErr) {
-        if (updateErr.code === 'PGRST116') {
-          // Ключ не найден или уже использован
-          return { ok: false, message: 'Ключ недействителен или уже использован' };
-        }
-        console.warn('[activateWithKey] access_keys update error:', updateErr.message);
-        return { ok: false, message: 'Сервер недоступен. Настройте таблицы подписки в Supabase.' };
+        console.warn('[activateWithKey] update key error:', updateErr.message);
+        return { ok: false, message: 'Ошибка активации ключа' };
       }
 
-      // Если дошли сюда - ключ успешно захвачен, пересчитаем срок по реальным данным
-      const actualDays = Number(updatedKey.duration_days || 30);
-      const actualExp = new Date(Date.now() + actualDays * 24 * 60 * 60 * 1000);
+      // Если массив пустой - значит ключ был захвачен кем-то другим между проверками
+      if (!updatedKeys || updatedKeys.length === 0) {
+        return { ok: false, message: 'Ключ уже использован другим пользователем' };
+      }
 
-      // Обновим expires_at с правильным сроком
-      await (supabase as any)
-        .from('access_keys')
-        .update({ expires_at: actualExp.toISOString() })
-        .eq('id', updatedKey.id);
-
-      // Создаем/обновляем подписку
+      // 3) Создаем/обновляем подписку
       const { error: sErr } = await (supabase as any)
         .from('subscriptions')
-        .upsert({ user_id: user.id, active_until: actualExp.toISOString() }, { onConflict: 'user_id' });
+        .upsert({ user_id: user.id, active_until: exp.toISOString() }, { onConflict: 'user_id' });
       
       if (sErr) {
         console.warn('[activateWithKey] subscriptions table error:', sErr.message);
-        return { ok: false, message: 'Не удалось записать подписку. Проверьте таблицы в Supabase.' };
+        return { ok: false, message: 'Не удалось записать подписку' };
       }
 
-      const iso = actualExp.toISOString();
+      const iso = exp.toISOString();
       localStorage.setItem('subscription_active_until', iso);
       setExpiresAt(iso);
       window.dispatchEvent(new CustomEvent('subscription_updated', { detail: iso }));
       return { ok: true, message: 'Доступ активирован' };
     } catch (e: any) {
-      console.error('[activateWithKey] unexpected', e);
+      console.error('[activateWithKey] unexpected error:', e);
       return { ok: false, message: 'Ошибка активации' };
     }
   }, [user?.id]);
