@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
-import { Lock, RefreshCw } from "lucide-react";
+import { Lock, RefreshCw, Trash2 } from "lucide-react";
 
 export type AccessKeyRow = {
   id: string;
@@ -91,6 +91,39 @@ export function AccessKeysAdmin() {
     }
   };
 
+  const handleDelete = async (keyId: string) => {
+    if (!confirm('Удалить этот ключ?')) return;
+    setLoading(true);
+    try {
+      const { error } = await (supabase as any).from('access_keys').delete().eq('id', keyId);
+      if (error) throw error;
+      toast({ title: 'Ключ удален' });
+      await load();
+    } catch (e: any) {
+      console.warn('[AccessKeysAdmin] delete error', e?.message || e);
+      toast({ title: 'Ошибка удаления', description: e?.message || 'Неизвестная ошибка' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCleanupExpired = async () => {
+    if (!confirm('Удалить все просроченные ключи?')) return;
+    setLoading(true);
+    try {
+      // Call cleanup edge function
+      const { error } = await supabase.functions.invoke('cleanup-expired-keys');
+      if (error) throw error;
+      toast({ title: 'Очистка завершена', description: 'Просроченные ключи удалены' });
+      await load();
+    } catch (e: any) {
+      console.warn('[AccessKeysAdmin] cleanup error', e?.message || e);
+      toast({ title: 'Ошибка очистки', description: e?.message || 'Неизвестная ошибка' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -127,10 +160,13 @@ export function AccessKeysAdmin() {
           </div>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex gap-3 flex-wrap">
           <Button onClick={handleGenerate} disabled={loading}>Создать ключ ({durationLabel})</Button>
           <Button variant="outline" onClick={load} disabled={loading}>
             <RefreshCw className="mr-2 size-4" /> Обновить список
+          </Button>
+          <Button variant="destructive" onClick={handleCleanupExpired} disabled={loading}>
+            <Trash2 className="mr-2 size-4" /> Очистить просроченные
           </Button>
         </div>
 
@@ -140,22 +176,31 @@ export function AccessKeysAdmin() {
             {keys.length === 0 && (
               <div className="p-4 text-sm text-muted-foreground">Ключей пока нет</div>
             )}
-            {keys.map((k) => (
-              <div key={k.id} className="p-4 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                <div className="font-mono text-sm break-all">{k.key}</div>
-                <div className="flex-1 text-sm text-muted-foreground">
-                  {k.duration_days} дн. • {k.assigned_email || 'без email'}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant={k.is_used ? 'secondary' : 'default'}>
-                    {k.is_used ? 'Использован' : 'Свободен'}
-                  </Badge>
-                  {k.expires_at && (
-                    <span className="text-xs text-muted-foreground">до {new Date(k.expires_at).toLocaleString()}</span>
-                  )}
-                </div>
-              </div>
-            ))}
+             {keys.map((k) => (
+               <div key={k.id} className="p-4 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                 <div className="font-mono text-sm break-all">{k.key}</div>
+                 <div className="flex-1 text-sm text-muted-foreground">
+                   {k.duration_days} дн. • {k.assigned_email || 'без email'}
+                 </div>
+                 <div className="flex items-center gap-2">
+                   <Badge variant={k.is_used ? 'secondary' : 'default'}>
+                     {k.is_used ? 'Использован' : 'Свободен'}
+                   </Badge>
+                   {k.expires_at && (
+                     <span className="text-xs text-muted-foreground">до {new Date(k.expires_at).toLocaleString()}</span>
+                   )}
+                   <Button
+                     variant="ghost"
+                     size="sm"
+                     onClick={() => handleDelete(k.id)}
+                     disabled={loading}
+                     className="text-destructive hover:text-destructive"
+                   >
+                     <Trash2 className="size-4" />
+                   </Button>
+                 </div>
+               </div>
+             ))}
           </div>
         </div>
       </CardContent>
