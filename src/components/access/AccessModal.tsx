@@ -1,5 +1,5 @@
-import { Lock } from "lucide-react";
-import { useState } from "react";
+import { Lock, ArrowLeft } from "lucide-react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,13 +8,23 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { toast } from "@/hooks/use-toast";
 
 export function AccessModal() {
-  const { user, signIn, signUp, loading } = useAuth();
+  const { user, signIn, signUp, loading, signOut } = useAuth();
   const { activateWithKey } = useSubscription();
 
+  const [step, setStep] = useState<'auth' | 'register' | 'key'>('auth');
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [accessKey, setAccessKey] = useState("");
+
+  // Reset to auth step when user logs out
+  const handleSignOut = async () => {
+    await signOut();
+    setStep('auth');
+    setEmail('');
+    setPassword('');
+    setAccessKey('');
+  };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +39,12 @@ export function AccessModal() {
     }
     const { error } = await signIn(email, password);
     setBusy(false);
-    if (error) toast({ title: "Ошибка входа", description: error.message });
+    if (error) {
+      toast({ title: "Ошибка входа", description: error.message });
+    } else {
+      // After successful login, show key entry
+      setStep('key');
+    }
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -48,9 +63,12 @@ export function AccessModal() {
     if (error) {
       toast({ title: "Ошибка регистрации", description: error.message });
     } else {
-      toast({ title: "Готово", description: "Регистрация выполнена. Вы вошли в аккаунт." });
+      toast({ title: "Готово", description: "Регистрация выполнена. Теперь введите ключ доступа." });
+      // After successful registration, show key entry
+      setStep('key');
     }
   };
+
   const handleActivate = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
@@ -62,6 +80,15 @@ export function AccessModal() {
       toast({ title: "Готово", description: res.message });
     }
   };
+
+  // Sync step with user state
+  useEffect(() => {
+    if (user && step !== 'key') {
+      setStep('key');
+    } else if (!user && step === 'key') {
+      setStep('auth');
+    }
+  }, [user, step]);
 
   return (
     <div
@@ -83,10 +110,14 @@ export function AccessModal() {
           </div>
 
           <p className="text-sm text-muted-foreground">
-            Для полного доступа оформите подписку или активируйте ключ доступа.
+            {step === 'key' 
+              ? "Введите ключ доступа для активации подписки."
+              : "Для полного доступа войдите в аккаунт или зарегистрируйтесь."
+            }
           </p>
 
-          {!user ? (
+          {/* Auth Step - Login/Register choice */}
+          {step === 'auth' && (
             <div className="space-y-4">
               <form onSubmit={handleSignIn} className="space-y-3">
                 <div className="space-y-2">
@@ -114,11 +145,14 @@ export function AccessModal() {
                 </Button>
               </form>
 
-              <form onSubmit={handleSignUp} className="space-y-3">
-                <Button disabled={busy || loading} variant="secondary" className="w-full" type="submit">
-                  Зарегистрироваться
-                </Button>
-              </form>
+              <Button 
+                disabled={busy || loading} 
+                variant="secondary" 
+                className="w-full"
+                onClick={() => setStep('register')}
+              >
+                Зарегистрироваться
+              </Button>
 
               <Button
                 asChild
@@ -130,8 +164,68 @@ export function AccessModal() {
                 </a>
               </Button>
             </div>
-          ) : (
+          )}
+
+          {/* Register Step */}
+          {step === 'register' && (
             <div className="space-y-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setStep('auth')}
+                className="self-start p-0 h-auto text-muted-foreground hover:text-foreground"
+              >
+                <ArrowLeft className="h-4 w-4 mr-1" />
+                Назад
+              </Button>
+
+              <form onSubmit={handleSignUp} className="space-y-3">
+                <div className="space-y-2">
+                  <label className="text-sm text-muted-foreground">Email</label>
+                  <Input
+                    type="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm text-muted-foreground">Пароль</label>
+                  <Input
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </div>
+                <Button disabled={busy || loading} className="w-full" type="submit">
+                  Создать аккаунт
+                </Button>
+              </form>
+            </div>
+          )}
+
+          {/* Key Entry Step */}
+          {step === 'key' && (
+            <div className="space-y-4">
+              {user && (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    Вы вошли как: {user.email}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleSignOut}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    Выйти
+                  </Button>
+                </div>
+              )}
+
               <form onSubmit={handleActivate} className="space-y-3">
                 <div className="space-y-2">
                   <label className="text-sm text-muted-foreground">Ключ доступа</label>
