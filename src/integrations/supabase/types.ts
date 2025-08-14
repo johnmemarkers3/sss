@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "13.0.4"
@@ -316,6 +316,18 @@ export type Database = {
       }
     }
     Functions: {
+      activate_access_key: {
+        Args: { key_to_activate: string; user_id: string }
+        Returns: Json
+      }
+      debug_key_activation: {
+        Args: { key_to_check: string }
+        Returns: Json
+      }
+      recalculate_all_project_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       recalculate_project_stats: {
         Args: { project_uuid: string }
         Returns: undefined
