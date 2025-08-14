@@ -29,13 +29,16 @@ export function AccessModal() {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
-    if (!/^\S+@\S+\.\S+$/.test(email)) {
+    
+    // Enhanced client-side validation
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    if (!emailRegex.test(email) || email.length > 254) {
       setBusy(false);
-      return toast({ title: "Некорректный email", description: "Проверьте адрес и попробуйте снова" });
+      return toast({ title: "Некорректный email", description: "Введите действительный адрес электронной почты" });
     }
-    if (password.length < 8) {
+    if (password.length < 8 || password.length > 128) {
       setBusy(false);
-      return toast({ title: "Слабый пароль", description: "Минимум 8 символов" });
+      return toast({ title: "Некорректный пароль", description: "Пароль должен содержать от 8 до 128 символов" });
     }
     const { error } = await signIn(email, password);
     setBusy(false);
@@ -50,13 +53,31 @@ export function AccessModal() {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
-    if (!/^\S+@\S+\.\S+$/.test(email)) {
+    
+    // Enhanced client-side validation for signup
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    if (!emailRegex.test(email) || email.length > 254) {
       setBusy(false);
-      return toast({ title: "Некорректный email", description: "Проверьте адрес и попробуйте снова" });
+      return toast({ title: "Некорректный email", description: "Введите действительный адрес электронной почты" });
     }
-    if (password.length < 8) {
+    if (password.length < 8 || password.length > 128) {
       setBusy(false);
-      return toast({ title: "Слабый пароль", description: "Минимум 8 символов" });
+      return toast({ title: "Слабый пароль", description: "Пароль должен содержать от 8 до 128 символов" });
+    }
+    
+    // Check password strength on client side
+    const hasLower = /[a-z]/.test(password);
+    const hasUpper = /[A-Z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    const strengthScore = [hasLower, hasUpper, hasNumber, hasSpecial].filter(Boolean).length;
+    
+    if (strengthScore < 3) {
+      setBusy(false);
+      return toast({ 
+        title: "Слабый пароль", 
+        description: "Пароль должен содержать как минимум 3 из: строчные буквы, заглавные буквы, цифры, специальные символы" 
+      });
     }
     const { error } = await signUp(email, password);
     setBusy(false);
@@ -72,7 +93,15 @@ export function AccessModal() {
   const handleActivate = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
-    const res = await activateWithKey(accessKey);
+    
+    // Sanitize access key input
+    const sanitizedKey = accessKey.trim().replace(/[^\w-]/g, '');
+    if (sanitizedKey !== accessKey.trim()) {
+      setBusy(false);
+      return toast({ title: "Некорректный ключ", description: "Ключ содержит недопустимые символы" });
+    }
+    
+    const res = await activateWithKey(sanitizedKey);
     setBusy(false);
     if (!res.ok) {
       toast({ title: "Не удалось активировать", description: res.message });
@@ -127,6 +156,8 @@ export function AccessModal() {
                     placeholder="you@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="email"
+                    maxLength={254}
                     required
                   />
                 </div>
@@ -137,6 +168,9 @@ export function AccessModal() {
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="current-password"
+                    minLength={8}
+                    maxLength={128}
                     required
                   />
                 </div>
@@ -187,6 +221,8 @@ export function AccessModal() {
                     placeholder="you@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="email"
+                    maxLength={254}
                     required
                   />
                 </div>
@@ -197,6 +233,9 @@ export function AccessModal() {
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="new-password"
+                    minLength={8}
+                    maxLength={128}
                     required
                   />
                 </div>
@@ -233,6 +272,9 @@ export function AccessModal() {
                     placeholder="Например: Tfa4-basf-65O1-BhtI"
                     value={accessKey}
                     onChange={(e) => setAccessKey(e.target.value)}
+                    autoComplete="off"
+                    pattern="[A-Za-z0-9-]+"
+                    maxLength={20}
                     required
                   />
                 </div>

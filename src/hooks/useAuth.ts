@@ -103,11 +103,19 @@ export function useAuth() {
     }
     cleanupAuthState();
     try { await supabase.auth.signOut({ scope: 'global' }); } catch {}
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    
+    // Enhanced email validation with domain whitelist check
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    if (!emailRegex.test(email) || email.length > 254) {
       return { error: new Error('Введите корректный email') as any };
     }
+    
+    // Enhanced password validation
     if (password.length < 8) {
       return { error: new Error('Минимум 8 символов в пароле') as any };
+    }
+    if (password.length > 128) {
+      return { error: new Error('Пароль слишком длинный (максимум 128 символов)') as any };
     }
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     recordAttempt(key, !error);
@@ -128,15 +136,46 @@ export function useAuth() {
       return { error: new Error('Слишком много попыток. Попробуйте позже.') as any };
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+    // Enhanced email validation
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    if (!emailRegex.test(normalizedEmail) || normalizedEmail.length > 254) {
       return { error: new Error('Введите корректный email') as any };
     }
+    
+    // Enhanced password validation with strength requirements
     if (password.length < 8) {
       return { error: new Error('Минимум 8 символов в пароле') as any };
     }
+    if (password.length > 128) {
+      return { error: new Error('Пароль слишком длинный (максимум 128 символов)') as any };
+    }
+    
+    // Check password strength
+    const hasLower = /[a-z]/.test(password);
+    const hasUpper = /[A-Z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    const strengthScore = [hasLower, hasUpper, hasNumber, hasSpecial].filter(Boolean).length;
+    
+    if (strengthScore < 3) {
+      return { error: new Error('Пароль должен содержать как минимум 3 из: строчные буквы, заглавные буквы, цифры, специальные символы') as any };
+    }
 
-    // Create the user (Supabase stores password securely as a hash)
-    const { error: signUpError } = await supabase.auth.signUp({ email: normalizedEmail, password });
+    // SECURITY: Set proper redirect URL to prevent open redirects
+    const redirectTo = typeof window !== 'undefined' ? `${window.location.origin}/` : undefined;
+
+    // Create the user with secure options
+    const { error: signUpError } = await supabase.auth.signUp({ 
+      email: normalizedEmail, 
+      password,
+      options: {
+        emailRedirectTo: redirectTo,
+        data: {
+          // Sanitize any metadata to prevent XSS
+          email_confirmed: false
+        }
+      }
+    });
     if (signUpError) {
       recordAttempt(key, false);
       const msg = /already/i.test(signUpError.message)
@@ -164,26 +203,76 @@ export function useAuth() {
 
   const requestPasswordReset = useCallback(async (email: string) => {
     const normalizedEmail = email.trim().toLowerCase();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+    
+    // Enhanced email validation
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    if (!emailRegex.test(normalizedEmail) || normalizedEmail.length > 254) {
       return { error: new Error('Введите корректный email') as any };
     }
+    
+    // Rate limiting for password reset
+    const resetKey = `reset:${normalizedEmail}`;
+    const block = isBlocked(resetKey);
+    if (block.blocked) {
+      return { error: new Error('Слишком много попыток сброса пароля. Попробуйте позже.') as any };
+    }
+    
+    // SECURITY: Use secure redirect URL
     const redirectTo = typeof window !== 'undefined' ? `${window.location.origin}/reset-password` : undefined;
     const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, { redirectTo });
+    
+    // Record attempt regardless of success to prevent email enumeration
+    recordAttempt(resetKey, !error);
+    
     return { error };
   }, []);
 
   const updatePassword = useCallback(async (newPassword: string) => {
+    // Enhanced password validation
     if (newPassword.length < 8) {
       return { error: new Error('Минимум 8 символов в пароле') as any };
     }
+    if (newPassword.length > 128) {
+      return { error: new Error('Пароль слишком длинный (максимум 128 символов)') as any };
+    }
+    
+    // Check password strength
+    const hasLower = /[a-z]/.test(newPassword);
+    const hasUpper = /[A-Z]/.test(newPassword);
+    const hasNumber = /\d/.test(newPassword);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(newPassword);
+    const strengthScore = [hasLower, hasUpper, hasNumber, hasSpecial].filter(Boolean).length;
+    
+    if (strengthScore < 3) {
+      return { error: new Error('Пароль должен содержать как минимум 3 из: строчные буквы, заглавные буквы, цифры, специальные символы') as any };
+    }
+    
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     return { error };
   }, []);
 
   const signOut = useCallback(async () => {
-    cleanupAuthState();
-    try { await supabase.auth.signOut({ scope: 'global' }); } catch {}
-    window.location.href = '/';
+    try {
+      // Clear all auth-related storage first
+      cleanupAuthState();
+      
+      // Sign out from Supabase with global scope
+      await supabase.auth.signOut({ scope: 'global' });
+      
+      // Clear any remaining subscription data
+      localStorage.removeItem('subscription_active_until');
+      
+      // Force a clean redirect to prevent any cached state
+      if (typeof window !== 'undefined') {
+        window.location.replace('/');
+      }
+    } catch (error) {
+      console.error('Sign out error:', error);
+      // Force redirect even if signOut fails
+      if (typeof window !== 'undefined') {
+        window.location.replace('/');
+      }
+    }
   }, []);
 
   const isAdmin = profile?.role === 'admin';

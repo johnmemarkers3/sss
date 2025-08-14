@@ -67,9 +67,19 @@ export function useSubscription() {
   }, [user, isAdmin, expiresAt]);
 
   const activateWithKey = useCallback(async (key: string) => {
-    const trimmed = key.trim();
-    if (!trimmed) return { ok: false, message: 'Введите ключ' };
+    // Enhanced input validation and sanitization
+    const trimmed = key.trim().replace(/[^\w-]/g, ''); // Allow only alphanumeric and hyphens
+    if (!trimmed || trimmed.length < 8 || trimmed.length > 20) {
+      return { ok: false, message: 'Некорректный формат ключа' };
+    }
     if (!user) return { ok: false, message: 'Войдите в аккаунт' };
+
+    // Rate limiting for key activation attempts
+    const activationKey = `key-activation:${user.id}`;
+    const rateLimitCheck = await import('@/utils/rateLimiter').then(m => m.isBlocked(activationKey));
+    if (rateLimitCheck.blocked) {
+      return { ok: false, message: 'Слишком много попыток активации. Попробуйте позже.' };
+    }
 
     console.log('[activateWithKey] Starting activation for key:', trimmed);
     console.log('[activateWithKey] User ID:', user.id);
@@ -181,10 +191,19 @@ export function useSubscription() {
       
       console.log('[activateWithKey] Activation completed successfully');
       
+      // Record successful activation (for rate limiting)
+      const { recordAttempt } = await import('@/utils/rateLimiter');
+      recordAttempt(activationKey, true);
+      
       const expiryDateStr = subscriptionExp.toLocaleDateString('ru-RU');
       return { ok: true, message: `Доступ активирован до ${expiryDateStr}` };
     } catch (e: any) {
       console.error('[activateWithKey] Unexpected error:', e);
+      
+      // Record failed activation (for rate limiting)
+      const { recordAttempt } = await import('@/utils/rateLimiter');
+      recordAttempt(activationKey, false);
+      
       return { ok: false, message: 'Ошибка активации' };
     }
   }, [user?.id]);
