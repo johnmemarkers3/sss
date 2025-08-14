@@ -20,7 +20,7 @@ export function useSubscription() {
       if (!user) return;
       setLoading(true);
       try {
-        const { data, error } = await (supabase as any)
+        const { data, error } = await supabase
           .from('subscriptions')
           .select('active_until')
           .eq('user_id', user.id)
@@ -86,8 +86,8 @@ export function useSubscription() {
 
     try {
       // 1) Найдем ключ и проверим, что он существует и не использован
-      console.log('[activateWithKey] Step 1: Looking for key...');
-      const { data: keyData, error: findErr } = await (supabase as any)
+      console.log('[activateWithKey] Step 1: Looking for key:', trimmed);
+      const { data: keyData, error: findErr } = await supabase
         .from('access_keys')
         .select('id, duration_days, is_used, used_by, used_at, expires_at, created_at, created_by')
         .eq('key', trimmed)
@@ -137,7 +137,7 @@ export function useSubscription() {
 
       // 2) Атомарно захватываем ключ
       console.log('[activateWithKey] Step 2: Attempting atomic key capture...');
-      const { data: updatedKeys, error: updateErr } = await (supabase as any)
+      const { data: updatedKeys, error: updateErr } = await supabase
         .from('access_keys')
         .update({ 
           is_used: true, 
@@ -160,7 +160,7 @@ export function useSubscription() {
       if (!updatedKeys || updatedKeys.length === 0) {
         console.log('[activateWithKey] Key was captured by someone else');
         // Дополнительная диагностика - проверим состояние ключа еще раз
-        const { data: recheckData } = await (supabase as any)
+        const { data: recheckData } = await supabase
           .from('access_keys')
           .select('is_used, used_by, used_at')
           .eq('id', keyData.id)
@@ -173,7 +173,7 @@ export function useSubscription() {
 
       // 3) Создаем/обновляем подписку
       console.log('[activateWithKey] Step 3: Creating subscription...');
-      const { error: sErr } = await (supabase as any)
+      const { error: sErr } = await supabase
         .from('subscriptions')
         .upsert({ user_id: user.id, active_until: subscriptionExp.toISOString() }, { onConflict: 'user_id' });
       

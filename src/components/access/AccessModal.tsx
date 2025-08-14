@@ -65,20 +65,8 @@ export function AccessModal() {
       return toast({ title: "Слабый пароль", description: "Пароль должен содержать от 8 до 128 символов" });
     }
     
-    // Check password strength on client side
-    const hasLower = /[a-z]/.test(password);
-    const hasUpper = /[A-Z]/.test(password);
-    const hasNumber = /\d/.test(password);
-    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-    const strengthScore = [hasLower, hasUpper, hasNumber, hasSpecial].filter(Boolean).length;
-    
-    if (strengthScore < 3) {
-      setBusy(false);
-      return toast({ 
-        title: "Слабый пароль", 
-        description: "Пароль должен содержать как минимум 3 из: строчные буквы, заглавные буквы, цифры, специальные символы" 
-      });
-    }
+    // Basic password validation - just minimum length
+    // Removed complex password requirements as requested
     const { error } = await signUp(email, password);
     setBusy(false);
     if (error) {
