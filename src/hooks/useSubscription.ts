@@ -149,6 +149,13 @@ export function useSubscription() {
       // Если массив пустой - ключ захвачен другим пользователем
       if (!updatedKeys || updatedKeys.length === 0) {
         console.log('[activateWithKey] Key was captured by someone else');
+        // Дополнительная диагностика - проверим состояние ключа еще раз
+        const { data: recheckData } = await (supabase as any)
+          .from('access_keys')
+          .select('is_used, used_by, used_at')
+          .eq('id', keyData.id)
+          .maybeSingle();
+        console.log('[activateWithKey] Key recheck after failed update:', recheckData);
         return { ok: false, message: 'Ключ уже использован другим пользователем' };
       }
 
