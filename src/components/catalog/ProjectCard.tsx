@@ -79,7 +79,7 @@ export default function ProjectCard({
   };
 
   return (
-    <Card className="overflow-hidden hover-scale animate-enter group cursor-pointer touch-manipulation w-full" onClick={handleCardClick}>
+    <Card className="overflow-hidden hover-scale animate-enter group cursor-pointer touch-manipulation w-full max-w-full" onClick={handleCardClick}>
       <div className="relative">
         {images.length > 1 ? (
           <Carousel className="w-full">
@@ -181,7 +181,7 @@ export default function ProjectCard({
             <Home className="size-3" />
             <span className="truncate">Новостройка • {project.district}</span>
           </div>
-          <h3 className="font-semibold text-base sm:text-lg leading-tight line-clamp-2" aria-label={`Проект: ${project.name}`}>{project.name}</h3>
+          <h3 className="font-semibold text-base sm:text-lg leading-tight line-clamp-2 break-words" aria-label={`Проект: ${project.name}`}>{project.name}</h3>
         </div>
 
         {/* Цена - крупным шрифтом */}
@@ -225,9 +225,9 @@ export default function ProjectCard({
         </div>
 
         {/* Адрес */}
-        <div className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
-          <MapPin className="size-3" /> 
-          <span className="truncate">{project.address}</span>
+        <div className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1 min-w-0">
+          <MapPin className="size-3 flex-shrink-0" /> 
+          <span className="truncate break-words overflow-hidden">{project.address}</span>
         </div>
 
         {/* Кнопка подробнее */}

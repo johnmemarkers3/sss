@@ -150,45 +150,69 @@ const Index = () => {
   const FiltersPanel = (
     <div className="w-full space-y-4 px-4 sm:px-0">
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <div>
-          <label className="text-sm text-muted-foreground">Цена, ₽</label>
-          <Slider min={0} max={50_000_000} step={100_000} value={[filters.price[0], filters.price[1]]} onValueChange={(v) => setFilters({ ...filters, price: [v[0], v[1]] as [number, number] })} />
-          <div className="text-xs text-muted-foreground mt-1">от {filters.price[0].toLocaleString()} до {filters.price[1].toLocaleString()}</div>
+        <div className="sm:col-span-2 lg:col-span-1">
+          <label className="text-sm text-muted-foreground mb-2 block">Цена, ₽</label>
+          <Slider 
+            min={0} 
+            max={50_000_000} 
+            step={100_000} 
+            value={[filters.price[0], filters.price[1]]} 
+            onValueChange={(v) => setFilters({ ...filters, price: [v[0], v[1]] as [number, number] })} 
+            className="mb-2"
+          />
+          <div className="text-xs text-muted-foreground">от {filters.price[0].toLocaleString()} до {filters.price[1].toLocaleString()}</div>
         </div>
-        <div>
-          <label className="text-sm text-muted-foreground">Площадь, м²</label>
-          <Slider min={20} max={200} step={1} value={[filters.area[0], filters.area[1]]} onValueChange={(v) => setFilters({ ...filters, area: [v[0], v[1]] as [number, number] })} />
-          <div className="text-xs text-muted-foreground mt-1">от {filters.area[0]} до {filters.area[1]}</div>
+        <div className="sm:col-span-2 lg:col-span-1">
+          <label className="text-sm text-muted-foreground mb-2 block">Площадь, м²</label>
+          <Slider 
+            min={20} 
+            max={200} 
+            step={1} 
+            value={[filters.area[0], filters.area[1]]} 
+            onValueChange={(v) => setFilters({ ...filters, area: [v[0], v[1]] as [number, number] })} 
+            className="mb-2"
+          />
+          <div className="text-xs text-muted-foreground">от {filters.area[0]} до {filters.area[1]}</div>
         </div>
-        <div>
-          <label className="text-sm text-muted-foreground">Комнаты</label>
-          <div className="flex flex-wrap gap-2 mt-2">
+        <div className="sm:col-span-2 lg:col-span-1">
+          <label className="text-sm text-muted-foreground mb-2 block">Комнаты</label>
+          <div className="flex flex-wrap gap-2">
             {[1,2,3,4].map(n => (
-              <label key={n} className="flex items-center gap-1 text-sm whitespace-nowrap">
-                <Checkbox checked={filters.rooms.includes(n)} onCheckedChange={(c) => {
-                  const next = new Set(filters.rooms);
-                  c ? next.add(n) : next.delete(n);
-                  setFilters({ ...filters, rooms: Array.from(next) as number[] });
-                }} /> {n}
+              <label key={n} className="flex items-center gap-1.5 text-sm bg-background border rounded-md px-3 py-2 cursor-pointer hover:bg-muted transition-colors">
+                <Checkbox 
+                  checked={filters.rooms.includes(n)} 
+                  onCheckedChange={(c) => {
+                    const next = new Set(filters.rooms);
+                    c ? next.add(n) : next.delete(n);
+                    setFilters({ ...filters, rooms: Array.from(next) as number[] });
+                  }} 
+                />
+                <span>{n}</span>
               </label>
             ))}
           </div>
         </div>
-        <div className="grid grid-cols-1 gap-3">
+        <div className="sm:col-span-2 lg:col-span-1 grid grid-cols-1 gap-3">
           <div>
-            <label className="text-sm text-muted-foreground">Город</label>
+            <label className="text-sm text-muted-foreground mb-2 block">Город</label>
             <Select value={filters.city} onValueChange={(v) => setFilters({ ...filters, city: v })}>
-              <SelectTrigger><SelectValue placeholder="Все" /></SelectTrigger>
-              <SelectContent>
+              <SelectTrigger className="h-10">
+                <SelectValue placeholder="Все города" />
+              </SelectTrigger>
+              <SelectContent className="bg-background border shadow-lg z-50">
+                <SelectItem value="">Все города</SelectItem>
                 {dynamicCities.map((c: string) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
           <div>
-            <label className="text-sm text-muted-foreground">Район</label>
+            <label className="text-sm text-muted-foreground mb-2 block">Район</label>
             <Select value={filters.district} onValueChange={(v) => setFilters({ ...filters, district: v })}>
-              <SelectTrigger><SelectValue placeholder="Все" /></SelectTrigger>
-              <SelectContent>
+              <SelectTrigger className="h-10">
+                <SelectValue placeholder="Все районы" />
+              </SelectTrigger>
+              <SelectContent className="bg-background border shadow-lg z-50">
+                <SelectItem value="">Все районы</SelectItem>
                 {dynamicDistricts.map((d: string) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
               </SelectContent>
             </Select>
@@ -243,14 +267,14 @@ const Index = () => {
                 <span className="sr-only">Фильтры</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="bottom" className="h-[90vh] max-h-[800px]">
-              <SheetHeader>
-                <SheetTitle>Фильтры</SheetTitle>
-              </SheetHeader>
-              <ScrollArea className="h-[calc(90vh-120px)] mt-4">
-                <div className="pb-4">{FiltersPanel}</div>
-              </ScrollArea>
-            </SheetContent>
+          <SheetContent side="bottom" className="h-[90vh] max-h-[800px] bg-background">
+            <SheetHeader>
+              <SheetTitle>Фильтры</SheetTitle>
+            </SheetHeader>
+            <ScrollArea className="h-[calc(90vh-120px)] mt-4">
+              <div className="pb-4">{FiltersPanel}</div>
+            </ScrollArea>
+          </SheetContent>
           </Sheet>
         </div>
       </SiteHeader>
@@ -335,8 +359,15 @@ const Index = () => {
                   </Card>
                 ))}
               </div>
+            ) : paged.length === 0 ? (
+              <Card className="mt-8">
+                <CardContent className="p-12 text-center">
+                  <p className="text-muted-foreground mb-4">Объекты не найдены</p>
+                  <Button onClick={resetFilters}>Сбросить фильтры</Button>
+                </CardContent>
+              </Card>
             ) : (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="mobile-grid sm:grid sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 no-scroll-x">
                 {paged.map((p: any) => (
                   <ProjectCard 
                     key={p.id} 
@@ -360,7 +391,7 @@ const Index = () => {
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="mobile-grid sm:grid sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 no-scroll-x">
                 {paged.map((p: any) => (
                   <ProjectCard 
                     key={p.id} 
@@ -384,7 +415,7 @@ const Index = () => {
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="mobile-grid sm:grid sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 no-scroll-x">
                 {paged.map((p: any) => (
                   <ProjectCard 
                     key={p.id} 
