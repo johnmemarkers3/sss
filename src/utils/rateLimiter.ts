@@ -37,8 +37,7 @@ function load(key: string): Entry {
       blockedUntil: typeof parsed.blockedUntil === 'number' && parsed.blockedUntil > 0 ? parsed.blockedUntil : undefined,
     };
   } catch (error) {
-    // Log parsing errors but don't expose them
-    console.warn('Rate limiter: failed to parse storage data');
+    // Log parsing errors but don't expose them - removed console.warn for production security
     return { attempts: [] };
   }
 }
@@ -54,7 +53,7 @@ function save(key: string, entry: Entry) {
     localStorage.setItem(sanitizedKey, JSON.stringify(sanitizedEntry));
   } catch (error) {
     // Handle storage quota exceeded gracefully
-    console.warn('Rate limiter: storage unavailable');
+    // Handle storage quota exceeded gracefully - no logging for security
   }
 }
 
@@ -109,6 +108,6 @@ export function clearRateLimiterData(keyPattern?: string) {
     }
     keysToRemove.forEach(key => localStorage.removeItem(key));
   } catch (error) {
-    console.warn('Failed to clear rate limiter data');
+    // Failed to clear data - handled gracefully
   }
 }

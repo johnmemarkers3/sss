@@ -9,6 +9,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { ComparisonProvider } from "@/components/ComparisonProvider";
 import AccessGate from "@/components/access/AccessGate";
+import { ErrorBoundary } from "@/components/ui/error-boundary";
 const Index = lazy(() => import("./pages/Index"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ObjectDetail = lazy(() => import("./pages/ObjectDetail"));
@@ -17,24 +18,26 @@ const Home = lazy(() => import("./pages/Home"));
 const ProjectDetail = lazy(() => import("./pages/ProjectDetail"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const AdminProjectEdit = lazy(() => import("./pages/AdminProjectEdit"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 
 const queryClient = new QueryClient();
 
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="light"
-      enableSystem
-      disableTransitionOnChange
-    >
-      <HelmetProvider>
-        <ComparisonProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="light"
+        enableSystem
+        disableTransitionOnChange
+      >
+        <HelmetProvider>
+          <ComparisonProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
               {/* Global access gate overlay inside Router context */}
               <AccessGate />
               <Suspense fallback={<div className="container py-10 text-muted-foreground">Загрузка…</div>}>
@@ -49,6 +52,7 @@ const App = () => (
                   {/* Новые страницы админки для проектов */}
                   <Route path="/admin/projects" element={<Navigate to="/admin/dashboard?tab=manage" replace />} />
                   <Route path="/admin/projects/:id" element={<AdminProjectEdit />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
@@ -59,6 +63,7 @@ const App = () => (
       </HelmetProvider>
     </ThemeProvider>
   </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

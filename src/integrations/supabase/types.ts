@@ -71,6 +71,51 @@ export type Database = {
         }
         Relationships: []
       }
+      project_stats: {
+        Row: {
+          max_unit_area: number | null
+          max_unit_price: number | null
+          min_unit_area: number | null
+          min_unit_price: number | null
+          project_id: string
+          rooms_available: number[] | null
+          units_count: number | null
+        }
+        Insert: {
+          max_unit_area?: number | null
+          max_unit_price?: number | null
+          min_unit_area?: number | null
+          min_unit_price?: number | null
+          project_id: string
+          rooms_available?: number[] | null
+          units_count?: number | null
+        }
+        Update: {
+          max_unit_area?: number | null
+          max_unit_price?: number | null
+          min_unit_area?: number | null
+          min_unit_price?: number | null
+          project_id?: string
+          rooms_available?: number[] | null
+          units_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_stats_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_stats_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "projects_with_stats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           address: string
@@ -221,13 +266,6 @@ export type Database = {
             foreignKeyName: "units_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: "project_stats"
-            referencedColumns: ["project_id"]
-          },
-          {
-            foreignKeyName: "units_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
           },
@@ -242,18 +280,6 @@ export type Database = {
       }
     }
     Views: {
-      project_stats: {
-        Row: {
-          max_unit_area: number | null
-          max_unit_price: number | null
-          min_unit_area: number | null
-          min_unit_price: number | null
-          project_id: string | null
-          rooms_available: number[] | null
-          units_count: number | null
-        }
-        Relationships: []
-      }
       projects_with_stats: {
         Row: {
           address: string | null
@@ -267,8 +293,10 @@ export type Database = {
           district: string | null
           id: string | null
           image_urls: string[] | null
+          infrastructure_nearby: string[] | null
           latitude: number | null
           longitude: number | null
+          map_embed_url: string | null
           max_unit_area: number | null
           max_unit_price: number | null
           min_unit_area: number | null
@@ -280,6 +308,7 @@ export type Database = {
           slug: string | null
           status: Database["public"]["Enums"]["property_status"] | null
           tags: string[] | null
+          thumbnail_urls: string[] | null
           units_count: number | null
           updated_at: string | null
         }
@@ -287,7 +316,10 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      recalculate_project_stats: {
+        Args: { project_uuid: string }
+        Returns: undefined
+      }
     }
     Enums: {
       property_status: "В продаже" | "Сдан" | "Забронировано"
