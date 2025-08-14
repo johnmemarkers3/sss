@@ -265,7 +265,7 @@ export function AccessModal() {
                     value={accessKey}
                     onChange={(e) => setAccessKey(e.target.value)}
                     autoComplete="off"
-                    pattern="[A-Za-z0-9-]+"
+                    pattern="[A-Za-z0-9\-]+"
                     maxLength={20}
                     required
                   />
