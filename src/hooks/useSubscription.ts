@@ -75,7 +75,7 @@ export function useSubscription() {
     console.log('[activateWithKey] User ID:', user.id);
 
     try {
-      // 1) Сначала найдем ключ и проверим что он свободен и не истек
+      // 1) Найдем ключ и проверим, что он существует и не использован
       console.log('[activateWithKey] Step 1: Looking for key...');
       const { data: keyData, error: findErr } = await (supabase as any)
         .from('access_keys')
@@ -95,28 +95,22 @@ export function useSubscription() {
         return { ok: false, message: 'Ключ не найден' };
       }
 
-      // Проверяем, что ключ не истек
-      if (keyData.expires_at) {
-        const expiryDate = new Date(keyData.expires_at);
-        const now = new Date();
-        if (expiryDate <= now) {
-          console.log('[activateWithKey] Key has expired:', keyData.expires_at);
-          return { ok: false, message: 'Ключ истек' };
-        }
-      }
-
-      console.log('[activateWithKey] Key found:', {
-        id: keyData.id,
-        is_used: keyData.is_used,
-        used_by: keyData.used_by,
-        used_at: keyData.used_at,
-        expires_at: keyData.expires_at,
-        duration_days: keyData.duration_days
-      });
+      console.log('[activateWithKey] Key data:', keyData);
 
       if (keyData.is_used) {
         console.log('[activateWithKey] Key is already used by:', keyData.used_by);
         return { ok: false, message: 'Ключ уже использован' };
+      }
+
+      // Проверяем срок жизни ключа (от даты создания)
+      const created = new Date(keyData.created_at);
+      const keyLifetime = 30 * 24 * 60 * 60 * 1000; // 30 дней жизни ключа
+      const keyExpiry = new Date(created.getTime() + keyLifetime);
+      const now = new Date();
+      
+      if (now > keyExpiry) {
+        console.log('[activateWithKey] Key expired (creation date based)');
+        return { ok: false, message: 'Ключ истек (просрочен)' };
       }
 
       const days = Number(keyData.duration_days || 30);
@@ -129,17 +123,18 @@ export function useSubscription() {
       const subscriptionExp = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
       console.log('[activateWithKey] Calculated subscription expiration:', subscriptionExp.toISOString());
 
-      // 2) Атомарно захватываем ключ (только если он still свободен и не истек)
+      // 2) Атомарно захватываем ключ
       console.log('[activateWithKey] Step 2: Attempting atomic key capture...');
       const { data: updatedKeys, error: updateErr } = await (supabase as any)
         .from('access_keys')
         .update({ 
           is_used: true, 
           used_by: user.id, 
-          used_at: new Date().toISOString()
+          used_at: new Date().toISOString(),
+          expires_at: subscriptionExp.toISOString() // Теперь устанавливаем при активации
         })
         .eq('id', keyData.id)
-        .eq('is_used', false) // ключевое условие - только если НЕ использован
+        .eq('is_used', false) // важно: только если НЕ использован
         .select('id');
 
       console.log('[activateWithKey] Update result:', { updatedKeys, updateErr });
@@ -149,13 +144,13 @@ export function useSubscription() {
         return { ok: false, message: 'Ошибка активации ключа' };
       }
 
-      // Если массив пустой - значит ключ был захвачен кем-то другим между проверками
+      // Если массив пустой - ключ захвачен другим пользователем
       if (!updatedKeys || updatedKeys.length === 0) {
-        console.log('[activateWithKey] Key was captured by someone else between checks');
+        console.log('[activateWithKey] Key was captured by someone else');
         return { ok: false, message: 'Ключ уже использован другим пользователем' };
       }
 
-      console.log('[activateWithKey] Key successfully captured, rows updated:', updatedKeys.length);
+      console.log('[activateWithKey] Key successfully captured');
 
       // 3) Создаем/обновляем подписку
       console.log('[activateWithKey] Step 3: Creating subscription...');

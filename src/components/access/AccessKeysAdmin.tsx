@@ -66,17 +66,13 @@ export function AccessKeysAdmin() {
     const key = randomKey();
     setLoading(true);
     try {
-      // Вычисляем дату истечения при создании ключа
-      const durationDays = Number(duration);
-      const expiresAt = new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000);
-      
       const payload = {
         key,
-        duration_days: durationDays,
+        duration_days: Number(duration),
         assigned_email: assignedEmail.trim() || null,
         is_used: false,
         created_by: user.id,
-        expires_at: expiresAt.toISOString(),
+        // НЕ устанавливаем expires_at при создании - только при активации!
       };
       
       console.log('[AccessKeysAdmin] Creating key with payload:', payload);
@@ -84,7 +80,8 @@ export function AccessKeysAdmin() {
       const { error } = await (supabase as any).from('access_keys').insert(payload);
       if (error) throw error;
       
-      toast({ title: 'Ключ создан', description: `${key} (действует ${durationDays} дн.)` });
+      const durationLabel = Number(duration) === 1 ? '1 день' : Number(duration) === 3 ? '3 дня' : '1 месяц';
+      toast({ title: 'Ключ создан', description: `${key} (срок: ${durationLabel})` });
       setAssignedEmail("");
       await load();
       
@@ -197,9 +194,9 @@ export function AccessKeysAdmin() {
                          {k.used_by && <span className="ml-2">({k.used_by})</span>}
                        </div>
                      )}
-                     {!k.is_used && k.expires_at && (
-                       <div className="text-xs mt-1">
-                         Действует до: {new Date(k.expires_at).toLocaleString()}
+                     {!k.is_used && (
+                       <div className="text-xs mt-1 text-green-600">
+                         Готов к активации
                        </div>
                      )}
                    </div>
