@@ -79,11 +79,13 @@ export function useSubscription() {
       console.log('[activateWithKey] Step 1: Looking for key...');
       const { data: keyData, error: findErr } = await (supabase as any)
         .from('access_keys')
-        .select('id, duration_days, is_used, used_by, used_at, expires_at, created_at')
+        .select('id, duration_days, is_used, used_by, used_at, expires_at, created_at, created_by')
         .eq('key', trimmed)
         .maybeSingle();
 
       console.log('[activateWithKey] Find result:', { keyData, findErr });
+      console.log('[activateWithKey] Current user trying to activate:', user.id);
+      console.log('[activateWithKey] Key created by:', keyData?.created_by);
 
       if (findErr) {
         console.warn('[activateWithKey] find key error:', findErr.message);
