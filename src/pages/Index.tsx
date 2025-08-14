@@ -195,24 +195,24 @@ const Index = () => {
         <div className="sm:col-span-2 lg:col-span-1 grid grid-cols-1 gap-3">
           <div>
             <label className="text-sm text-muted-foreground mb-2 block">Город</label>
-            <Select value={filters.city} onValueChange={(v) => setFilters({ ...filters, city: v })}>
+            <Select value={filters.city || "all"} onValueChange={(v) => setFilters({ ...filters, city: v === "all" ? undefined : v })}>
               <SelectTrigger className="h-10">
                 <SelectValue placeholder="Все города" />
               </SelectTrigger>
               <SelectContent className="bg-background border shadow-lg z-50">
-                <SelectItem value="">Все города</SelectItem>
+                <SelectItem value="all">Все города</SelectItem>
                 {dynamicCities.map((c: string) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
           <div>
             <label className="text-sm text-muted-foreground mb-2 block">Район</label>
-            <Select value={filters.district} onValueChange={(v) => setFilters({ ...filters, district: v })}>
+            <Select value={filters.district || "all"} onValueChange={(v) => setFilters({ ...filters, district: v === "all" ? undefined : v })}>
               <SelectTrigger className="h-10">
                 <SelectValue placeholder="Все районы" />
               </SelectTrigger>
               <SelectContent className="bg-background border shadow-lg z-50">
-                <SelectItem value="">Все районы</SelectItem>
+                <SelectItem value="all">Все районы</SelectItem>
                 {dynamicDistricts.map((d: string) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
               </SelectContent>
             </Select>
@@ -221,9 +221,10 @@ const Index = () => {
       </div>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
-          <Select value={filters.status} onValueChange={(v) => setFilters({ ...filters, status: v as Filters["status"] })}>
+          <Select value={filters.status || "all"} onValueChange={(v) => setFilters({ ...filters, status: v === "all" ? undefined : v as Filters["status"] })}>
             <SelectTrigger className="w-full sm:w-[220px]"><SelectValue placeholder="Статус" /></SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-background border shadow-lg z-50">
+              <SelectItem value="all">Все статусы</SelectItem>
               {(["В продаже", "Сдан", "Забронировано"] as const).map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
             </SelectContent>
           </Select>
