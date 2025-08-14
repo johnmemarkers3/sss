@@ -66,18 +66,28 @@ export function AccessKeysAdmin() {
     const key = randomKey();
     setLoading(true);
     try {
+      // Вычисляем дату истечения при создании ключа
+      const durationDays = Number(duration);
+      const expiresAt = new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000);
+      
       const payload = {
         key,
-        duration_days: Number(duration),
+        duration_days: durationDays,
         assigned_email: assignedEmail.trim() || null,
         is_used: false,
         created_by: user.id,
+        expires_at: expiresAt.toISOString(),
       };
+      
+      console.log('[AccessKeysAdmin] Creating key with payload:', payload);
+      
       const { error } = await (supabase as any).from('access_keys').insert(payload);
       if (error) throw error;
-      toast({ title: 'Ключ создан', description: key });
+      
+      toast({ title: 'Ключ создан', description: `${key} (действует ${durationDays} дн.)` });
       setAssignedEmail("");
       await load();
+      
       try {
         await navigator.clipboard.writeText(key);
         toast({ title: 'Скопировано', description: 'Ключ в буфере обмена' });
@@ -179,31 +189,34 @@ export function AccessKeysAdmin() {
              {keys.map((k) => (
                <div key={k.id} className="p-4 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
                   <div className="font-mono text-sm break-all">{k.key}</div>
-                  <div className="flex-1 text-sm text-muted-foreground">
-                    {k.duration_days} дн. • {k.assigned_email || 'без email'}
-                    {k.is_used && k.used_at && (
-                      <div className="text-xs mt-1">
-                        Использован: {new Date(k.used_at).toLocaleString()}
-                      </div>
-                    )}
+                   <div className="flex-1 text-sm text-muted-foreground">
+                     {k.duration_days} дн. • {k.assigned_email || 'без email'}
+                     {k.is_used && k.used_at && (
+                       <div className="text-xs mt-1">
+                         Использован: {new Date(k.used_at).toLocaleString()}
+                         {k.used_by && <span className="ml-2">({k.used_by})</span>}
+                       </div>
+                     )}
+                     {!k.is_used && k.expires_at && (
+                       <div className="text-xs mt-1">
+                         Действует до: {new Date(k.expires_at).toLocaleString()}
+                       </div>
+                     )}
+                   </div>
+                  <div className="flex items-center gap-2">
+                     <Badge variant={k.is_used ? 'secondary' : 'default'}>
+                       {k.is_used ? 'Занят' : 'Свободен'}
+                     </Badge>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDelete(k.id)}
+                      disabled={loading}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="size-4" />
+                    </Button>
                   </div>
-                 <div className="flex items-center gap-2">
-                    <Badge variant={k.is_used ? 'secondary' : 'default'}>
-                      {k.is_used ? 'Занят' : 'Свободен'}
-                    </Badge>
-                   {k.expires_at && (
-                     <span className="text-xs text-muted-foreground">до {new Date(k.expires_at).toLocaleString()}</span>
-                   )}
-                   <Button
-                     variant="ghost"
-                     size="sm"
-                     onClick={() => handleDelete(k.id)}
-                     disabled={loading}
-                     className="text-destructive hover:text-destructive"
-                   >
-                     <Trash2 className="size-4" />
-                   </Button>
-                 </div>
                </div>
              ))}
           </div>
