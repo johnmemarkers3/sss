@@ -74,15 +74,22 @@ export function useSubscription() {
     }
     if (!user) return { ok: false, message: 'Войдите в аккаунт' };
 
-    // Rate limiting for key activation attempts
+    // Rate limiting for key activation attempts - TEMPORARILY DISABLED FOR DEBUGGING
     const activationKey = `key-activation:${user.id}`;
+    console.log('[activateWithKey] Checking rate limiting for:', activationKey);
     const rateLimitCheck = await import('@/utils/rateLimiter').then(m => m.isBlocked(activationKey));
+    console.log('[activateWithKey] Rate limit status:', rateLimitCheck);
+    
+    // TEMPORARILY DISABLE RATE LIMITING
+    /*
     if (rateLimitCheck.blocked) {
       return { ok: false, message: 'Слишком много попыток активации. Попробуйте позже.' };
     }
+    */
 
     console.log('[activateWithKey] Starting activation for key:', trimmed);
     console.log('[activateWithKey] User ID:', user.id);
+    console.log('[activateWithKey] Key length:', trimmed.length);
 
     try {
       // 1) Найдем ключ и проверим, что он существует и не использован
@@ -96,6 +103,7 @@ export function useSubscription() {
       console.log('[activateWithKey] Find result:', { keyData, findErr });
       console.log('[activateWithKey] Current user trying to activate:', user.id);
       console.log('[activateWithKey] Key created by:', keyData?.created_by);
+      console.log('[activateWithKey] Raw query for key:', trimmed);
 
       if (findErr) {
         console.warn('[activateWithKey] find key error:', findErr.message);

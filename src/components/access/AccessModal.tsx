@@ -65,8 +65,7 @@ export function AccessModal() {
       return toast({ title: "Слабый пароль", description: "Пароль должен содержать от 8 до 128 символов" });
     }
     
-    // Basic password validation - just minimum length
-    // Removed complex password requirements as requested
+    // Just basic password length check - removed complex requirements
     const { error } = await signUp(email, password);
     setBusy(false);
     if (error) {
@@ -82,8 +81,13 @@ export function AccessModal() {
     e.preventDefault();
     setBusy(true);
     
+    console.log('[AccessModal] Starting key activation:', accessKey);
+    
     // Sanitize access key input
     const sanitizedKey = accessKey.trim().replace(/[^\w-]/g, '');
+    console.log('[AccessModal] Sanitized key:', sanitizedKey);
+    console.log('[AccessModal] Original key:', accessKey.trim());
+    
     if (sanitizedKey !== accessKey.trim()) {
       setBusy(false);
       return toast({ title: "Некорректный ключ", description: "Ключ содержит недопустимые символы" });
