@@ -287,4 +287,20 @@ All colors MUST be HSL.
     overflow-wrap: anywhere;
     hyphens: auto;
   }
+
+  /* Исправление для мобильных: принудительный перенос длинных ссылок */
+  .mobile-text-fix {
+    word-break: break-all;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  /* На больших экранах возвращаем нормальное поведение */
+  @media (min-width: 640px) {
+    .mobile-text-fix {
+      word-break: break-word;
+    }
+  }
 }

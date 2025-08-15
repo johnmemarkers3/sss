@@ -68,7 +68,13 @@ export default function ObjectDetail() {
             <h1 className="text-2xl font-semibold">{item.title}</h1>
             <div className="text-muted-foreground flex items-center gap-2"><MapPin className="size-4" /> {addressFull}</div>
             <div className="flex gap-2">{item.tags?.map(t => <Badge key={t} variant="secondary">{t}</Badge>)}</div>
-            <div className="text-sm leading-relaxed break-words overflow-wrap-anywhere whitespace-pre-wrap" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
+            <div className="text-sm leading-relaxed break-words overflow-wrap-anywhere whitespace-pre-wrap mobile-text-fix" style={{ 
+              wordBreak: 'break-word', 
+              overflowWrap: 'anywhere',
+              wordWrap: 'break-word',
+              maxWidth: '100%',
+              minWidth: '0'
+            }}>
               {item.description}
             </div>
             {item.amenities?.length ? (

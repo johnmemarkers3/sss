@@ -236,7 +236,13 @@ export default function ProjectDetail() {
                   <CardTitle>Описание</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm leading-relaxed whitespace-pre-line">
+                  <p className="text-sm leading-relaxed whitespace-pre-line break-words mobile-text-fix" style={{ 
+                    wordBreak: 'break-word', 
+                    overflowWrap: 'anywhere',
+                    wordWrap: 'break-word',
+                    maxWidth: '100%',
+                    minWidth: '0'
+                  }}>
                     {project.description}
                   </p>
                 </CardContent>
