@@ -40,11 +40,11 @@ const SiteHeader = ({ children }: PropsWithChildren) => {
           <span className="font-semibold text-sm sm:text-base">RealtyPro</span>
         </Link>
         
-        <div className="flex items-center gap-2 min-w-0 overflow-hidden">
+        <div className="flex-1 flex items-center gap-2 min-w-0 overflow-hidden">
           {children}
         </div>
         
-        <div className="flex items-center gap-1 shrink-0 ml-auto">
+        <div className="flex items-center gap-1 shrink-0">
           <ComparisonDrawer />
 
           {/* Десктопные элементы */}
