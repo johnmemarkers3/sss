@@ -156,9 +156,9 @@ All colors MUST be HSL.
   .story-link::after { content: ""; position: absolute; left: 0; bottom: 0; width: 100%; height: 2px; background: hsl(var(--primary)); transform: scaleX(0); transform-origin: bottom right; transition: transform 0.3s ease; }
   .story-link:hover::after { transform: scaleX(1); transform-origin: bottom left; }
 
-  /* Улучшенные анимации */
+  /* Микроанимации для переходов */
   .animate-fade-in {
-    animation: fade-in 0.5s ease-out;
+    animation: fade-in 0.4s ease-out;
   }
 
   .animate-slide-up {
@@ -167,6 +167,36 @@ All colors MUST be HSL.
 
   .animate-enter {
     animation: fade-in 0.3s ease-out, scale-in 0.2s ease-out;
+  }
+
+  .animate-page-enter {
+    animation: page-enter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .animate-page-exit {
+    animation: page-exit 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes page-enter {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes page-exit {
+    from {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-20px) scale(1.02);
+    }
   }
 
   @keyframes slide-up {

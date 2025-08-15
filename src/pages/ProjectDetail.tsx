@@ -24,11 +24,24 @@ export default function ProjectDetail() {
   const project = data?.project;
   const allUnits = data?.units ?? [];
   
-  // Фильтры
+  // Фильтры с правильной инициализацией диапазонов
   const [roomsFilter, setRoomsFilter] = useState<number | "all">("all");
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000000]);
   const [areaRange, setAreaRange] = useState<[number, number]>([0, 200]);
   const [statusFilter, setStatusFilter] = useState<string | "all">("all");
+  
+  // Инициализация диапазонов на основе данных
+  useEffect(() => {
+    if (allUnits.length > 0) {
+      const maxPrice = Math.max(...allUnits.map(u => u.price));
+      const maxArea = Math.max(...allUnits.map(u => u.area));
+      const minPrice = Math.min(...allUnits.map(u => u.price));
+      const minArea = Math.min(...allUnits.map(u => u.area));
+      
+      setPriceRange([minPrice, maxPrice]);
+      setAreaRange([minArea, maxArea]);
+    }
+  }, [allUnits]);
   
   // Состояние для избранного и истории
   const [isFavorite, setIsFavorite] = useState(false);
@@ -366,25 +379,39 @@ export default function ProjectDetail() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Цена до {priceRange[1].toLocaleString()} ₽</label>
+                  <label className="text-sm font-medium">
+                    Цена: {priceRange[0].toLocaleString()} — {priceRange[1].toLocaleString()} ₽
+                  </label>
                   <Slider
-                    min={0}
-                    max={Math.max(...allUnits.map(u => u.price), 50000000)}
+                    min={allUnits.length > 0 ? Math.min(...allUnits.map(u => u.price)) : 0}
+                    max={allUnits.length > 0 ? Math.max(...allUnits.map(u => u.price)) : 50000000}
                     step={100000}
                     value={priceRange}
-                    onValueChange={(v) => setPriceRange([v[0], v[1]])}
+                    onValueChange={(value) => setPriceRange([value[0], value[1]])}
+                    className="w-full"
                   />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>{allUnits.length > 0 ? Math.min(...allUnits.map(u => u.price)).toLocaleString() : 0} ₽</span>
+                    <span>{allUnits.length > 0 ? Math.max(...allUnits.map(u => u.price)).toLocaleString() : "50M"} ₽</span>
+                  </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Площадь до {areaRange[1]} м²</label>
+                  <label className="text-sm font-medium">
+                    Площадь: {areaRange[0]} — {areaRange[1]} м²
+                  </label>
                   <Slider
-                    min={0}
-                    max={Math.max(...allUnits.map(u => u.area), 200)}
+                    min={allUnits.length > 0 ? Math.min(...allUnits.map(u => u.area)) : 0}
+                    max={allUnits.length > 0 ? Math.max(...allUnits.map(u => u.area)) : 200}
                     step={1}
                     value={areaRange}
-                    onValueChange={(v) => setAreaRange([v[0], v[1]])}
+                    onValueChange={(value) => setAreaRange([value[0], value[1]])}
+                    className="w-full"
                   />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>{allUnits.length > 0 ? Math.min(...allUnits.map(u => u.area)) : 0} м²</span>
+                    <span>{allUnits.length > 0 ? Math.max(...allUnits.map(u => u.area)) : 200} м²</span>
+                  </div>
                 </div>
 
                 <div className="space-y-2">
