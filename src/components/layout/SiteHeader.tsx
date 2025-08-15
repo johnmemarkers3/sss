@@ -34,7 +34,7 @@ const SiteHeader = ({ children }: PropsWithChildren) => {
 
   return (
     <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-      <div className="container h-14 sm:h-16 flex items-center gap-2 px-3 sm:px-4">
+      <div className="container min-h-[3.5rem] sm:min-h-[4rem] flex items-center gap-2 px-3 sm:px-4 py-2">
         <Link to="/" className="flex items-center gap-2 story-link shrink-0" aria-label="Домой">
           <Building2 className="text-primary size-5 sm:size-6" />
           <span className="font-semibold text-sm sm:text-base">RealtyPro</span>

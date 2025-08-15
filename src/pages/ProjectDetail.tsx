@@ -161,7 +161,7 @@ export default function ProjectDetail() {
 
       <main className="container py-6 space-y-8">
         <Breadcrumb className="mb-2">
-          <BreadcrumbList>
+          <BreadcrumbList className="breadcrumb-fix">
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
                 <Link to="/">Главная</Link>
