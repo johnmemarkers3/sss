@@ -48,13 +48,13 @@ const SiteHeader = ({ children }: PropsWithChildren) => {
           <ComparisonDrawer />
 
           {/* Десктопные элементы */}
-          <div className="hidden sm:flex items-center gap-2 mr-1">
+          <div className="hidden sm:flex items-center gap-1">
             <Button asChild variant="ghost" size="sm">
               <Link to="/admin">Админка</Link>
             </Button>
             
             {user && isActive && remaining && (
-              <span className="text-xs text-muted-foreground">Осталось: {remaining}</span>
+              <span className="text-xs text-muted-foreground whitespace-nowrap">Осталось: {remaining}</span>
             )}
             {user && (
               <Button variant="outline" size="sm" onClick={signOut}>Выйти</Button>
