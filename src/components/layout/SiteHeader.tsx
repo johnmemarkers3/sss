@@ -9,14 +9,14 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
-import { useOnlineSimulator } from "@/hooks/useOnlineSimulator";
+
 
 const SiteHeader = ({ children }: PropsWithChildren) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isMobile = useIsMobile();
   const { user, signOut } = useAuth();
   const { isActive, expiresAt } = useSubscription();
-  const online = useOnlineSimulator();
+  
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 30000);
@@ -52,7 +52,7 @@ const SiteHeader = ({ children }: PropsWithChildren) => {
             <Button asChild variant="ghost" size="sm">
               <Link to="/admin">Админка</Link>
             </Button>
-            <span className="text-xs text-muted-foreground">Онлайн: {online}</span>
+            
             {user && isActive && remaining && (
               <span className="text-xs text-muted-foreground">Осталось: {remaining}</span>
             )}
