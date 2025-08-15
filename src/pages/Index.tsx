@@ -253,13 +253,13 @@ const Index = () => {
 
       <SiteHeader>
         <div className="relative flex-1 max-w-2xl min-w-0">
-          <Input value={filters.query} onChange={(e) => setFilters({ ...filters, query: e.target.value })} placeholder="Поиск по названию или адресу" className="pl-10" />
+          <Input value={filters.query} onChange={(e) => setFilters({ ...filters, query: e.target.value })} placeholder="Поиск по названию или адресу" className="pl-10 h-9" />
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
         </div>
-        <div className="hidden sm:flex gap-2">
+        <div className="hidden sm:flex items-center gap-2">
           <StableInstallmentCalculator />
         </div>
-        <div className="sm:hidden flex gap-1">
+        <div className="sm:hidden flex items-center gap-2">
           <StableInstallmentCalculator />
           <Sheet>
             <SheetTrigger asChild>

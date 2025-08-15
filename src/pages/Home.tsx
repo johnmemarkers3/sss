@@ -28,25 +28,25 @@ export default function Home() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Поиск по названию, адресу или городу"
-            className="pl-10"
+            className="pl-10 h-9"
           />
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
         </div>
-        <div className="hidden sm:flex gap-3">
-          <Button asChild variant="outline"><Link to="/catalog">Каталог</Link></Button>
+        <div className="hidden sm:flex items-center gap-2">
+          <Button asChild variant="outline" size="sm"><Link to="/catalog">Каталог</Link></Button>
           <StableInstallmentCalculator />
         </div>
       </SiteHeader>
 
-      <main className="container py-8 space-y-8">
-        <section className="text-center space-y-3">
+      <main className="container py-6 space-y-6">
+        <section className="text-center space-y-4">
           <h1 className="text-3xl sm:text-4xl font-semibold">Новостройки Чеченской Республики</h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Современная база объектов: смотрите фото, характеристики и планировки. Нажмите на объект, чтобы открыть подробную страницу с квартирами.
           </p>
-          <div className="sm:hidden">
+          <div className="sm:hidden pt-2">
             <div className="flex gap-2 justify-center">
-              <Button asChild variant="outline"><Link to="/catalog">Каталог</Link></Button>
+              <Button asChild variant="outline" size="sm"><Link to="/catalog">Каталог</Link></Button>
               <StableInstallmentCalculator />
             </div>
           </div>

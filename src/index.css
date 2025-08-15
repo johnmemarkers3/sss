@@ -218,14 +218,8 @@ All colors MUST be HSL.
     @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
   }
 
-  /* Исправление проблем с мобильными устройствами */
+  /* Оптимизация для мобильных устройств */
   @media (max-width: 768px) {
-    /* Обеспечиваем видимость всех элементов */
-    * {
-      min-height: 0;
-      min-width: 0;
-    }
-    
     .container {
       @apply px-4;
     }
@@ -240,44 +234,12 @@ All colors MUST be HSL.
       min-height: 44px;
     }
     
-    /* Улучшение видимости текста */
-    .text-xs {
-      font-size: 0.75rem;
-      line-height: 1rem;
-    }
-    
-    /* Обрезка текста */
-    .line-clamp-2 {
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    
-    /* Улучшение z-index для мобильных модалов */
-    .z-\[100\] {
-      z-index: 100;
-    }
-    
-    /* Исправление переноса длинных ссылок */
-    .break-links {
-      word-break: break-all;
-      overflow-wrap: anywhere;
-      hyphens: auto;
-    }
-    
     /* Улучшенная сетка каталога для мобильных */
     .mobile-grid {
       display: grid;
       grid-template-columns: 1fr;
       gap: 1rem;
       width: 100%;
-    }
-    
-    /* Предотвращение горизонтального скролла */
-    .no-scroll-x {
-      overflow-x: hidden;
-      max-width: 100vw;
     }
     
     /* Исправление хлебных крошек на мобильных */
@@ -295,26 +257,18 @@ All colors MUST be HSL.
     }
   }
   
-  /* Переносы длинных URL и текста */
-  .break-anywhere {
-    word-break: break-word;
-    overflow-wrap: anywhere;
-    hyphens: auto;
+  /* Контейнер с консистентными отступами */
+  .container-consistent {
+    @apply px-4 mx-auto max-w-7xl;
   }
-
-  /* Исправление для мобильных: принудительный перенос длинных ссылок */
-  .mobile-text-fix {
-    word-break: break-all;
-    overflow-wrap: break-word;
-    hyphens: auto;
-    max-width: 100%;
-    min-width: 0;
+  
+  /* Фиксированная высота хедера */
+  .header-height {
+    height: 3.5rem;
   }
-
-  /* На больших экранах возвращаем нормальное поведение */
-  @media (min-width: 640px) {
-    .mobile-text-fix {
-      word-break: break-word;
-    }
+  
+  /* Выравнивание элементов по базовой линии */
+  .baseline-aligned {
+    @apply flex items-baseline gap-3;
   }
 }

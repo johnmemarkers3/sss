@@ -34,27 +34,27 @@ const SiteHeader = ({ children }: PropsWithChildren) => {
 
   return (
     <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-      <div className="container min-h-[3.5rem] sm:min-h-[4rem] flex items-center gap-2 px-3 sm:px-4 py-2">
+      <div className="container h-14 flex items-center gap-3 px-4">
         <Link to="/" className="flex items-center gap-2 story-link shrink-0" aria-label="Домой">
-          <Building2 className="text-primary size-5 sm:size-6" />
-          <span className="font-semibold text-sm sm:text-base">RealtyPro</span>
+          <Building2 className="text-primary size-5" />
+          <span className="font-semibold text-base">RealtyPro</span>
         </Link>
         
-        <div className="flex-1 flex items-center gap-2 min-w-0 overflow-hidden">
+        <div className="flex-1 flex items-center gap-3 min-w-0">
           {children}
         </div>
         
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <ComparisonDrawer />
 
           {/* Десктопные элементы */}
-          <div className="hidden sm:flex items-center gap-1">
+          <div className="hidden sm:flex items-center gap-2">
             <Button asChild variant="ghost" size="sm">
               <Link to="/admin">Админка</Link>
             </Button>
             
             {user && isActive && remaining && (
-              <span className="text-xs text-muted-foreground whitespace-nowrap">Осталось: {remaining}</span>
+              <span className="text-xs text-muted-foreground whitespace-nowrap px-2">Осталось: {remaining}</span>
             )}
             {user && (
               <Button variant="outline" size="sm" onClick={signOut}>Выйти</Button>
@@ -68,9 +68,9 @@ const SiteHeader = ({ children }: PropsWithChildren) => {
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="h-9 w-9 p-0 sm:hidden border-2 border-primary/20 bg-background hover:bg-primary/10"
+                className="h-9 w-9 p-0 sm:hidden"
               >
-                <Menu className="size-4 text-foreground" />
+                <Menu className="size-4" />
                 <span className="sr-only">Открыть меню</span>
               </Button>
             </SheetTrigger>
