@@ -354,6 +354,10 @@ export type Database = {
         Args: { key_to_check: string }
         Returns: Json
       }
+      check_key_availability_secure: {
+        Args: { key_to_check: string }
+        Returns: Json
+      }
       debug_key_activation: {
         Args: { key_to_check: string }
         Returns: Json
