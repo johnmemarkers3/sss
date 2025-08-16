@@ -44,11 +44,11 @@ const SiteHeader = ({ children }: PropsWithChildren) => {
           {children}
         </div>
         
-        <div className="flex items-center shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <ComparisonDrawer />
 
           {/* Десктопные элементы */}
-          <div className="hidden sm:flex items-center">
+          <div className="hidden sm:flex items-center gap-2">
             <Button asChild variant="ghost" size="sm">
               <Link to="/admin">Админка</Link>
             </Button>
