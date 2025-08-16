@@ -40,7 +40,7 @@ const SiteHeader = ({ children }: PropsWithChildren) => {
           <span className="font-semibold text-base">RealtyPro</span>
         </Link>
         
-        <div className="flex items-center gap-3 min-w-0">
+        <div className="flex-1 flex items-center gap-1 min-w-0">
           {children}
         </div>
         
