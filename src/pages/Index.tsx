@@ -324,13 +324,13 @@ const Index = () => {
           ) : null}
         </div>
       </div>
-      <div className="hidden sm:block sticky top-16 z-30 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
+      <div className="hidden sm:block fixed top-16 left-0 right-0 z-30 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
         <div className="container py-4 animate-fade-in">
           {FiltersPanel}
         </div>
       </div>
 
-      <main className="container py-4 sm:py-6 px-4">
+      <main className="container py-4 sm:py-6 px-4 sm:pt-32">
         <h1 className="sr-only">Каталог новостроек и объектов</h1>
         
         {/* Вкладки */}
